@@ -1,0 +1,3012 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth"><head><script data-bard-client-injected="true">(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjExNjRiNzdiNDMzZDdhMDAyMWI4NjE4YjhjYTU3ZTMyZGI5MWUxMTMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6Ly9pZGVudGl0eXRvb2xraXQuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIwODA0NzY4MTMzNjc2NzM5MTQyNSIsImlzcyI6ImZpcmViYXNlLWFkbWluc2RrLWZic3ZjQGJhcmQtZnJvbnRlbmQuaWFtLmdzZXJ2aWNlYWNjb3VudC5jb20iLCJjbGFpbXMiOnsiYXBwSWQiOiJjXzFkNGVkMGMzMDFiMWEwNjZfaW5kZXguaHRtbC0xNjQifSwiZXhwIjoxNzk1NTEwMTYyLCJpYXQiOjE3OTU1MDY1NjIsImFsZyI6IlJTMjU2In0.Aanp-3CCBM1BSxeaSmSe2bc6Dq6fXhPwAtrjEvo2WUUnPvcs_qVMjuhbkl2kv3k8EHu18LJ1mHer3nq_AWcKRT-r5VCBUNEjk0ZA8aVvirloi9VKzZ4Jdwqp1ZweXbas8vsKnccHZkLbWw10fKRqor3f2AQI-xiysgGXIDrb2Y-elv9TpsiO0vp32DKrSaXZ9i68NXDTu8R709rVjWTFYv0hT9nG5fBW3nVyb3MaopUdWlC0oW32S06MecdWazPiyWp18qZcl9mlGeZttp1rC2wtTxaJeue5ctPVry1kUTJD4WXkhEguh0uHxJz4EU3hGoRi18vK2edUKJGJBukKbg","c_1d4ed0c301b1a066_index.html-164")</script><script data-bard-client-injected="true">
+  document.addEventListener('input', (event) => {
+    if (event.target && (event.target.isContentEditable || event.target.hasAttribute('contenteditable'))) {
+      const clonedDoc = document.cloneNode(true);
+      const injectedScripts = clonedDoc.querySelectorAll('[data-bard-client-injected="true"]');
+      injectedScripts.forEach(el => el.remove());
+      window.parent.postMessage({
+        type: 'inlineEdit',
+        html: '<!DOCTYPE html>\n' + clonedDoc.documentElement.outerHTML
+      }, '*');
+    }
+  });
+</script><script data-bard-client-injected="true">(function(){'use strict';window.addEventListener("message",a=>{a.data&&a.data.type==="SUPPLEMENTAL_DATA_UPDATE"&&window.dispatchEvent(new CustomEvent("supplementaldataupdate",{detail:a.data.data}))});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const SCROLL_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Spacebar', 'PageUp', 'PageDown', 'Home', 'End',
+  ]);
+  const HORIZONTAL_KEYS = new Set(['ArrowLeft', 'ArrowRight']);
+
+  function isTextEntryTarget(target) {
+    if (!target) return false;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' ||
+        tagName === 'SELECT' || target.isContentEditable === true;
+  }
+
+  // An element absorbs the key only if it both overflows on the axis being
+  // scrolled and is configured to scroll on that axis. The cheap dimension
+  // test runs first because getComputedStyle forces a style recalc, and this
+  // runs on every keypress. Each axis is read from its own longhand: the
+  // 'overflow' shorthand serializes as two values when the axes differ, which
+  // is the common 'overflow-x: hidden; overflow-y: auto' pane.
+  function canScroll(node, horizontal) {
+    const overflows = horizontal ? node.scrollWidth > node.clientWidth
+                                 : node.scrollHeight > node.clientHeight;
+    if (!overflows) return false;
+    const style = window.getComputedStyle(node);
+    const overflow = horizontal ? style.overflowX : style.overflowY;
+    return overflow === 'auto' || overflow === 'scroll';
+  }
+
+  // Walks up from the event target so nested scrollers keep their behavior.
+  // <body> is included because pages that pin the root height make it the
+  // scroll container.
+  function hasScrollableAncestor(target, horizontal) {
+    let node = target;
+    while (node && node !== document.documentElement) {
+      if (canScroll(node, horizontal)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function rootCanScroll(horizontal) {
+    const scroller = document.scrollingElement || document.documentElement;
+    if (!scroller) return false;
+    // Tolerate a pixel of rounding so subpixel layouts do not look scrollable.
+    return horizontal ? scroller.scrollWidth > window.innerWidth + 1
+                      : scroller.scrollHeight > window.innerHeight + 1;
+  }
+
+  window.addEventListener('keydown', function(event) {
+    if (!SCROLL_KEYS.has(event.key)) return;
+    if (event.defaultPrevented) return;
+    // Alt and Meta turn arrows into browser history navigation, and Ctrl is
+    // reserved for shortcuts, so none of them are scroll intent.
+    if (event.altKey || event.metaKey || event.ctrlKey) return;
+
+    const target = event.target;
+    if (isTextEntryTarget(target)) return;
+
+    // Anything that can still absorb the scroll gets to keep it.
+    const horizontal = HORIZONTAL_KEYS.has(event.key);
+    if (rootCanScroll(horizontal)) return;
+    if (hasScrollableAncestor(target, horizontal)) return;
+
+    event.preventDefault();
+  }, {capture: true, passive: false});
+})();</script><script data-bard-client-injected="true">(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script data-bard-client-injected="true">
+let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function requestMediaPermissions(constraints) {
+    const mediaPromiseId = nextMediaPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingMediaResolvers[mediaPromiseId] = (granted) => {
+        delete pendingMediaResolvers[mediaPromiseId];
+        resolve(granted);
+      };
+    });
+
+    window.parent.postMessage({
+      type: 'requestMediaPermission',
+      constraints: constraints,
+      promiseId: mediaPromiseId,
+    }, '*');
+
+    return promise;
+  }
+
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          return requestMediaPermissions(constraints).then((granted) => {
+            if (granted) {
+              if (originalGetUserMedia) {
+                return originalGetUserMedia(constraints);
+              } else {
+                throw new Error("Original getUserMedia not available.");
+              }
+            } else {
+              throw new DOMException('Permission denied', 'NotAllowedError');
+            }
+          });
+        },
+        writable: false,
+        configurable: false
+      });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  function interceptSpeechRecognition() {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      return;
+    }
+
+    const OriginalSpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    const SpeechRecognitionWrapper = function(...args) {
+      const recognizer = new OriginalSpeechRecognition(...args);
+      const originalStart = recognizer.start.bind(recognizer);
+
+      recognizer.start = function() {
+        requestMediaPermissions({ audio: true }).then(granted => {
+          if (granted) {
+            originalStart();
+          } else {
+            const errorEvent = new SpeechRecognitionErrorEvent('error');
+            errorEvent.error = 'not-allowed'; // This is the standard error for permission denial.
+            recognizer.dispatchEvent(errorEvent);
+          }
+        });
+      };
+
+      return recognizer;
+    };
+
+    SpeechRecognitionWrapper.prototype = OriginalSpeechRecognition.prototype;
+    SpeechRecognitionWrapper.prototype.constructor = SpeechRecognitionWrapper;
+
+    if (window.SpeechRecognition) {
+      window.SpeechRecognition = SpeechRecognitionWrapper;
+    }
+    if (window.webkitSpeechRecognition) {
+      window.webkitSpeechRecognition = SpeechRecognitionWrapper;
+    }
+  }
+
+  interceptSpeechRecognition();
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script ws-interception-config="{&quot;parentOrigin&quot;:&quot;https://gemini.google.com&quot;,&quot;proxiedDomains&quot;:[]}" data-bard-client-injected="true">(function(){'use strict';var u=typeof Object.defineProperties=="function"?Object.defineProperty:function(b,d,e){if(b==Array.prototype||b==Object.prototype)return b;b[d]=e.value;return b};function v(b){b=["object"==typeof globalThis&&globalThis,b,"object"==typeof window&&window,"object"==typeof self&&self,"object"==typeof global&&global];for(var d=0;d<b.length;++d){var e=b[d];if(e&&e.Math==Math)return e}throw Error("Cannot find global object");}var w=v(this);
+function y(b,d){if(d)a:{var e=w;b=b.split(".");for(var h=0;h<b.length-1;h++){var k=b[h];if(!(k in e))break a;e=e[k]}b=b[b.length-1];h=e[b];d=d(h);d!=h&&d!=null&&u(e,b,{configurable:!0,writable:!0,value:d})}}function z(b){function d(h){return b.next(h)}function e(h){return b.throw(h)}return new Promise(function(h,k){function m(n){n.done?h(n.value):Promise.resolve(n.value).then(d,e).then(m,k)}m(b.next())})}y("globalThis",function(b){return b||w});/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+function A(b,d){function e(){}e.prototype=d.prototype;b.i=d.prototype;b.prototype=new e;b.prototype.constructor=b;b.h=function(h,k,m){for(var n=Array(arguments.length-2),p=2;p<arguments.length;p++)n[p-2]=arguments[p];return d.prototype[k].apply(h,n)}};function B(b,d,e="*"){function h(a){if(typeof a==="string")return F.encode(a).buffer;if(a instanceof ArrayBuffer)return a.slice(0);if(ArrayBuffer.isView(a))return a.buffer.slice(a.byteOffset,a.byteOffset+a.byteLength);throw Error("Invalid data type");}function k(a){a=h(a);var f={type:"send",data:new Uint8Array(a)},g;(g=r)==null||g.postMessage(f,[a])}function m(){if(!r)throw Error("Data port not captured yet.");r.onmessage=a=>{if(a.data.type==="message"){a=new MessageEvent("message",{data:G.decode(a.data.data)});
+let f;(f=c.onmessage)==null||f.call(c,a);c.dispatchEvent(a)}}}function n(){if(!t)throw Error("Control port not captured yet.");t.onmessage=a=>{switch(a.data.type){case "open":l=1;var f=new Event("open"),g;(g=c.onopen)==null||g.call(c,f);c.dispatchEvent(f);q.forEach(H=>{k(H)});q=[];break;case "close":g=a.data;l=3;g=new CloseEvent("close",{code:g.code,reason:g.reason,wasClean:g.wasClean});(f=c.onclose)==null||f.call(c,g);c.dispatchEvent(g);break;case "error":l=3;f=new Event("error");let x;(x=c.onerror)==
+null||x.call(c,f);c.dispatchEvent(f)}}}function p(a){return z(function*(){var f=new MessageChannel;t=f.port1;var g=new MessageChannel;r=g.port1;n();m();window.parent.postMessage({type:"websocket_open",portOrdering:["control","data"],url:b,protocols:a||[],connectionId:I},e,[f.port2,g.port2])}())}var c=Reflect.construct(EventTarget,[],new.target);c.CONNECTING=0;c.OPEN=1;c.CLOSING=2;c.CLOSED=3;c.url=b;c.binaryType="arraybuffer";c.protocol="";c.extensions="";var l=0,t=null,r=null,q=[],F=new TextEncoder,
+G=new TextDecoder;c.onopen=null;c.onmessage=null;c.onclose=null;c.onerror=null;Object.defineProperty(c,"readyState",{get:()=>l,enumerable:!0,configurable:!0});Object.defineProperty(c,"bufferedAmount",{get:()=>{var a=0;q.forEach(f=>{a+=typeof f==="string"?f.length:f.byteLength});return a},enumerable:!0,configurable:!0});var I=function(){var a;return((a=globalThis.crypto)==null?0:a.randomUUID)?globalThis.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,f=>{var g=Math.random()*
+16|0;return(f==="x"?g:g&3|8).toString(16)})}();c.send=a=>{if(l===1)a instanceof Blob?a.arrayBuffer().then(f=>{k(f)}):k(a);else if(l===0)if(typeof a==="string")q.push(a);else if(a instanceof ArrayBuffer||ArrayBuffer.isView(a))q.push(h(a));else throw Error("Sending Blob is not supported before the connection is open.");else console.debug("WebSocket send called in CLOSING or CLOSED state; ignored.")};c.close=(a=1E3,f="")=>{if(l!==2&&l!==3){l=2;a={type:"close",code:a,reason:f,wasClean:a===1E3};var g;
+(g=t)==null||g.postMessage(a)}};Promise.resolve().then(()=>p(d));return c}A(B,EventTarget);var C=document.currentScript,D=C==null?void 0:C.getAttribute("ws-interception-config");if(!D)throw Error("WebSocket Interceptor: Missing ws-interception-config attribute in the script tag.");var E=JSON.parse(D);if(!E.parentOrigin||typeof E.parentOrigin!=="string")throw Error("WebSocket Interceptor: Invalid parentOrigin in ws-interception-config");
+(function(b){var d=Object.getOwnPropertyDescriptor(window,"WebSocket");if(!d||d.writable||d.configurable)d=Object.assign(function(e,h){try{let k=(new URL(e)).hostname;if(b.proxiedDomains.some(m=>k===m||k.endsWith(`.${m}`)))return new B(e,h,b.parentOrigin)}catch(k){throw window.parent.postMessage({type:"websocket_blocked",url:e,reason:"blocked_invalid_url"},b.parentOrigin),new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");}window.parent.postMessage({type:"websocket_blocked",
+url:e,reason:"blocked_domain_not_allowlisted"},b.parentOrigin);throw new DOMException(`WebSocket connection to '${e}' is not allowed in Canvas.`,"SecurityError");},{CONNECTING:0,OPEN:1,CLOSING:2,CLOSED:3}),Object.defineProperty(window,"WebSocket",{value:d,writable:!1,configurable:!1})})({proxiedDomains:E.proxiedDomains||[],parentOrigin:E.parentOrigin});}).call(this);
+</script><script data-bard-client-injected="true">((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageEditModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageTransformModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.ttsModelName + ':generateContent',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+  modelInformation.deprecatedImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predict',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':predictLongRunning',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedGenerateImageModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+  modelInformation.deprecatedImageTransformModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-3-flash-preview","imageModelName":"imagen-4.0-generate-001","imageEditModelName":"gemini-3.1-flash-image","imageTransformModelName":"gemini-3-pro-image","videoModelName":"veo-2.0-generate-001","ttsModelName":"gemini-2.5-flash-preview-tts","deprecatedTextModelNames":["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-flash-preview-04-17","gemini-2.5-flash-preview-05-20","gemini-2.5-flash-preview-09-2025"],"deprecatedImageModelNames":["imagen-3.0-generate-001","imagen-3.0-generate-002"],"deprecatedGenerateImageModelNames":["gemini-2.5-flash-image-preview","gemini-2.5-flash-image","gemini-3.1-flash-image-preview"],"deprecatedImageTransformModelNames":["gemini-3-pro-image-preview-11-2025"]})</script><script data-bard-client-injected="true">(function() {
+  const OVERLAY_SELECTOR =
+    'dialog[open], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="combobox"]';
+
+  function isVisibleOverlay(element) {
+    if (element.closest('[hidden], [aria-hidden="true"], [inert]')) {
+      return false;
+    }
+    if (window.getComputedStyle(element).visibility === 'hidden') {
+      return false;
+    }
+    for (let cur = element; cur; cur = cur.parentElement) {
+      if (window.getComputedStyle(cur).display === 'none') {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function hasOpenOverlay() {
+    const candidates = document.querySelectorAll(OVERLAY_SELECTOR);
+    for (let i = 0; i < candidates.length; i++) {
+      if (isVisibleOverlay(candidates[i])) {
+        return true;
+      }
+    }
+    try {
+      if (document.querySelector('[popover]:popover-open')) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore engines that do not support :popover-open.
+    }
+    return false;
+  }
+
+  function isNonEmptySearchInput(target) {
+    return (
+      Boolean(target) &&
+      target.tagName === 'INPUT' &&
+      typeof target.type === 'string' &&
+      target.type.toLowerCase() === 'search' &&
+      typeof target.value === 'string' &&
+      target.value.length > 0
+    );
+  }
+
+  function shouldIgnoreEscape(event) {
+    return (
+      event.key !== 'Escape' ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.isComposing ||
+      event.repeat ||
+      event.keyCode === 229 ||
+      isNonEmptySearchInput(event.target)
+    );
+  }
+
+  let shouldIgnoreCaptureState = false;
+
+  window.addEventListener(
+    'keydown',
+    function(event) {
+      if (event.key === 'Escape') {
+        shouldIgnoreCaptureState =
+          hasOpenOverlay() || isNonEmptySearchInput(event.target);
+      }
+    },
+    {capture: true},
+  );
+
+  window.addEventListener('keydown', function(event) {
+    if (
+      shouldIgnoreEscape(event) ||
+      event.defaultPrevented ||
+      shouldIgnoreCaptureState
+    ) {
+      return;
+    }
+    const wasBlockedOnCapture = shouldIgnoreCaptureState;
+    queueMicrotask(function() {
+      if (event.defaultPrevented || wasBlockedOnCapture) {
+        return;
+      }
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({'type': 'escapeKey'}, '*');
+      }
+    });
+  });
+})();</script><script data-bard-client-injected="true">(function() {
+  function normalizeSlug(str) {
+    try {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^p{L}p{N}s_-]/gu, '')
+        .replace(/s+/g, '-');
+    } catch (e) {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9s_-]/g, '')
+        .replace(/s+/g, '-');
+    }
+  }
+
+  function findTargetElement(hash) {
+    if (!hash || hash === '#') {
+      return null;
+    }
+    const rawId = hash.startsWith('#') ? hash.slice(1) : hash;
+    let decodedId = rawId;
+    try {
+      decodedId = decodeURIComponent(rawId);
+    } catch (e) {
+      // Ignore URI malformed errors.
+    }
+
+    // 1. Direct ID match (raw and decoded).
+    let target = document.getElementById(rawId) || document.getElementById(decodedId);
+    if (target) {
+      return target;
+    }
+
+    // 2. Name attribute match (<a name="...">).
+    try {
+      if (typeof CSS !== 'undefined' && CSS.escape) {
+        target =
+          document.querySelector('[name="' + CSS.escape(rawId) + '"]') ||
+          document.querySelector('[name="' + CSS.escape(decodedId) + '"]');
+      } else {
+        const namedElements = document.getElementsByName(rawId);
+        if (namedElements && namedElements.length > 0) {
+          return namedElements[0];
+        }
+      }
+    } catch (e) {
+      // Ignore querySelector syntax errors.
+    }
+    if (target) {
+      return target;
+    }
+
+    // 3. Match heading text by slug (for Markdown TOCs where headings lack explicit IDs).
+    const targetSlug = normalizeSlug(decodedId);
+    if (targetSlug) {
+      for (const heading of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        if (normalizeSlug(heading.textContent || '') === targetSlug) {
+          return heading;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  document.addEventListener('click', function(event) {
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a') : null;
+    if (!anchor) {
+      return;
+    }
+
+    const href = anchor.getAttribute('href');
+    if (
+      !href ||
+      href.trim().toLowerCase().startsWith('javascript:') ||
+      anchor.hasAttribute('download')
+    ) {
+      return;
+    }
+
+    // Check if the link is an in-page hash / anchor link.
+    if (href.startsWith('#')) {
+      event.preventDefault();
+      const targetElement = findTargetElement(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+      return;
+    }
+
+    // Check if the URL has the same origin/pathname but with a hash.
+    try {
+      const url = new URL(anchor.href, window.location.href);
+      if (
+        url.hash &&
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname
+      ) {
+        event.preventDefault();
+        const targetElement = findTargetElement(url.hash);
+        if (targetElement) {
+          targetElement.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+        return;
+      }
+    } catch (e) {
+      // Fall through if URL parsing fails.
+    }
+
+    // For all external or full navigation links, prevent iframe-level navigation
+    // (which breaks in AGSA WebView or sandboxed iframes) and ensure they open
+    // safely in a new tab/window.
+    if (anchor.target !== '_blank') {
+      event.preventDefault();
+      window.open(anchor.href, '_blank', 'noopener,noreferrer');
+    }
+  }, {capture: true});
+})();</script><script data-bard-client-injected="true">(function(){'use strict';function a(){window.parent.postMessage({type:"interaction"},"*")}window.addEventListener("click",a,{capture:!0,passive:!0});window.addEventListener("touchstart",a,{capture:!0,passive:!0});window.addEventListener("keydown",a,{capture:!0,passive:!0});}).call(this);
+</script><script data-bard-client-injected="true">(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Interactive Progressive Web Application Learning Repository on Socio-Economic Factors &amp; Effects (2026 Philippine Economic Context)">
+  <title>EconoPH 2026 | Socio-Economic Factors PWA Repository</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Inter & Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+
+  <!-- JSZip for generating real multi-file PWA repository download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
+
+  <!-- Dynamic Manifest Placeholder (Populated via JS Data URI) -->
+  <link id="pwa-manifest" rel="manifest" href="./manifest.json">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              900: '#134e4a',
+            },
+            phblue: '#0038A8',
+            phred: '#CE1126',
+            phgold: '#FCD116',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Subtle Utilities & Print Styles */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* 3D Flashcard Flip */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+
+    /* Custom Range Slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #0f766e;
+      cursor: pointer;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+      transition: transform 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    /* Print Study Sheet Optimization */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .print-only-matrix {
+        display: block !important;
+      }
+      .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl {
+        box-shadow: none !important;
+      }
+      .border {
+        border-color: #cbd5e1 !important;
+      }
+    }
+  </style>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:JetBrains Mono, monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.inset-x-0{left:0px;right:0px}.bottom-0{bottom:0px}.bottom-5{bottom:1.25rem}.left-3{left:0.75rem}.right-0{right:0px}.right-5{right:1.25rem}.top-0{top:0px}.top-1\/2{top:50%}.z-10{z-index:10}.z-30{z-index:30}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-2{margin-top:0.5rem;margin-bottom:0.5rem}.my-auto{margin-top:auto;margin-bottom:auto}.-mr-24{margin-right:-6rem}.-mt-24{margin-top:-6rem}.mb-1{margin-bottom:0.25rem}.mb-1\.5{margin-bottom:0.375rem}.mb-3{margin-bottom:0.75rem}.mb-4{margin-bottom:1rem}.mb-8{margin-bottom:2rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-12{margin-top:3rem}.mt-2{margin-top:0.5rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.mb-2{margin-bottom:0.5rem}.mt-1\.5{margin-top:0.375rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-1{height:0.25rem}.h-10{height:2.5rem}.h-2{height:0.5rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-64{height:16rem}.h-8{height:2rem}.max-h-\[90vh\]{max-height:90vh}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-2{width:0.5rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-64{width:16rem}.w-8{width:2rem}.w-\[18\%\]{width:18%}.w-\[25\%\]{width:25%}.w-\[27\%\]{width:27%}.w-\[30\%\]{width:30%}.w-full{width:100%}.min-w-\[220px\]{min-width:220px}.min-w-\[820px\]{min-width:820px}.max-w-2xl{max-width:42rem}.max-w-7xl{max-width:80rem}.max-w-full{max-width:100%}.max-w-sm{max-width:24rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.border-collapse{border-collapse:collapse}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.list-disc{list-style-type:disc}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-3\.5{gap:0.875rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.space-y-6 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.5rem * var(--tw-space-y-reverse))}.space-y-8 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(2rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(2rem * var(--tw-space-y-reverse))}.space-y-1\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.375rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.375rem * var(--tw-space-y-reverse))}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.divide-y > :not([hidden]) ~ :not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px * calc(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px * var(--tw-divide-y-reverse))}.divide-slate-200 > :not([hidden]) ~ :not([hidden]){--tw-divide-opacity:1;border-color:rgb(226 232 240 / var(--tw-divide-opacity, 1))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.scroll-smooth{scroll-behavior:smooth}.whitespace-nowrap{white-space:nowrap}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-amber-200\/80{border-color:rgb(253 230 138 / 0.8)}.border-amber-500\/30{border-color:rgb(245 158 11 / 0.3)}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-emerald-500\/30{border-color:rgb(16 185 129 / 0.3)}.border-rose-200{--tw-border-opacity:1;border-color:rgb(254 205 211 / var(--tw-border-opacity, 1))}.border-rose-200\/80{border-color:rgb(254 205 211 / 0.8)}.border-sky-200\/80{border-color:rgb(186 230 253 / 0.8)}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.border-slate-200\/80{border-color:rgb(226 232 240 / 0.8)}.border-slate-200\/90{border-color:rgb(226 232 240 / 0.9)}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.border-slate-700\/80{border-color:rgb(51 65 85 / 0.8)}.border-slate-800{--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.border-teal-200{--tw-border-opacity:1;border-color:rgb(153 246 228 / var(--tw-border-opacity, 1))}.border-teal-200\/80{border-color:rgb(153 246 228 / 0.8)}.border-teal-500{--tw-border-opacity:1;border-color:rgb(20 184 166 / var(--tw-border-opacity, 1))}.border-teal-500\/30{border-color:rgb(20 184 166 / 0.3)}.border-indigo-200{--tw-border-opacity:1;border-color:rgb(199 210 254 / var(--tw-border-opacity, 1))}.border-sky-200{--tw-border-opacity:1;border-color:rgb(186 230 253 / var(--tw-border-opacity, 1))}.border-slate-200\/70{border-color:rgb(226 232 240 / 0.7)}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-amber-50\/80{background-color:rgb(255 251 235 / 0.8)}.bg-amber-500\/20{background-color:rgb(245 158 11 / 0.2)}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(52 211 153 / var(--tw-bg-opacity, 1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-emerald-500\/15{background-color:rgb(16 185 129 / 0.15)}.bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255 / var(--tw-bg-opacity, 1))}.bg-rose-100{--tw-bg-opacity:1;background-color:rgb(255 228 230 / var(--tw-bg-opacity, 1))}.bg-rose-50{--tw-bg-opacity:1;background-color:rgb(255 241 242 / var(--tw-bg-opacity, 1))}.bg-rose-50\/80{background-color:rgb(255 241 242 / 0.8)}.bg-sky-100{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.bg-sky-50\/80{background-color:rgb(240 249 255 / 0.8)}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-slate-50\/80{background-color:rgb(248 250 252 / 0.8)}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-slate-800\/60{background-color:rgb(30 41 59 / 0.6)}.bg-slate-800\/90{background-color:rgb(30 41 59 / 0.9)}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/60{background-color:rgb(15 23 42 / 0.6)}.bg-teal-100{--tw-bg-opacity:1;background-color:rgb(204 251 241 / var(--tw-bg-opacity, 1))}.bg-teal-100\/80{background-color:rgb(204 251 241 / 0.8)}.bg-teal-50{--tw-bg-opacity:1;background-color:rgb(240 253 250 / var(--tw-bg-opacity, 1))}.bg-teal-50\/70{background-color:rgb(240 253 250 / 0.7)}.bg-teal-50\/80{background-color:rgb(240 253 250 / 0.8)}.bg-teal-500\/20{background-color:rgb(20 184 166 / 0.2)}.bg-teal-600{--tw-bg-opacity:1;background-color:rgb(13 148 136 / var(--tw-bg-opacity, 1))}.bg-teal-700{--tw-bg-opacity:1;background-color:rgb(15 118 110 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-indigo-50{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.bg-indigo-600{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity, 1))}.bg-sky-50{--tw-bg-opacity:1;background-color:rgb(240 249 255 / var(--tw-bg-opacity, 1))}.bg-slate-200\/80{background-color:rgb(226 232 240 / 0.8)}.bg-slate-50\/60{background-color:rgb(248 250 252 / 0.6)}.bg-slate-50\/70{background-color:rgb(248 250 252 / 0.7)}.bg-slate-50\/90{background-color:rgb(248 250 252 / 0.9)}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-\[\#0038A8\]{--tw-gradient-from:#0038A8 var(--tw-gradient-from-position);--tw-gradient-to:rgb(0 56 168 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-slate-900{--tw-gradient-from:#0f172a var(--tw-gradient-from-position);--tw-gradient-to:rgb(15 23 42 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-\[\#FCD116\]{--tw-gradient-to:rgb(252 209 22 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #FCD116 var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-teal-800{--tw-gradient-to:rgb(17 94 89 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #115e59 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-\[\#CE1126\]{--tw-gradient-to:#CE1126 var(--tw-gradient-to-position)}.to-slate-800{--tw-gradient-to:#1e293b var(--tw-gradient-to-position)}.to-teal-600{--tw-gradient-to:#0d9488 var(--tw-gradient-to-position)}.p-1{padding:0.25rem}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3\.5{padding-top:0.875rem;padding-bottom:0.875rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.pb-1{padding-bottom:0.25rem}.pb-3{padding-bottom:0.75rem}.pb-4{padding-bottom:1rem}.pb-5{padding-bottom:1.25rem}.pl-9{padding-left:2.25rem}.pr-3{padding-right:0.75rem}.pt-4{padding-top:1rem}.pt-6{padding-top:1.5rem}.pl-4{padding-left:1rem}.text-left{text-align:left}.text-center{text-align:center}.align-top{vertical-align:top}.font-display{font-family:Plus Jakarta Sans, sans-serif}.font-mono{font-family:JetBrains Mono, monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.leading-snug{line-height:1.375}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-amber-800\/90{color:rgb(146 64 14 / 0.9)}.text-amber-900{--tw-text-opacity:1;color:rgb(120 53 15 / var(--tw-text-opacity, 1))}.text-amber-950{--tw-text-opacity:1;color:rgb(69 26 3 / var(--tw-text-opacity, 1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-emerald-800{--tw-text-opacity:1;color:rgb(6 95 70 / var(--tw-text-opacity, 1))}.text-indigo-800{--tw-text-opacity:1;color:rgb(55 48 163 / var(--tw-text-opacity, 1))}.text-rose-300{--tw-text-opacity:1;color:rgb(253 164 175 / var(--tw-text-opacity, 1))}.text-rose-700{--tw-text-opacity:1;color:rgb(190 18 60 / var(--tw-text-opacity, 1))}.text-rose-700\/90{color:rgb(190 18 60 / 0.9)}.text-rose-800{--tw-text-opacity:1;color:rgb(159 18 57 / var(--tw-text-opacity, 1))}.text-rose-900{--tw-text-opacity:1;color:rgb(136 19 55 / var(--tw-text-opacity, 1))}.text-sky-800{--tw-text-opacity:1;color:rgb(7 89 133 / var(--tw-text-opacity, 1))}.text-sky-800\/90{color:rgb(7 89 133 / 0.9)}.text-sky-950{--tw-text-opacity:1;color:rgb(8 47 73 / var(--tw-text-opacity, 1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-slate-800{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-teal-300{--tw-text-opacity:1;color:rgb(94 234 212 / var(--tw-text-opacity, 1))}.text-teal-400{--tw-text-opacity:1;color:rgb(45 212 191 / var(--tw-text-opacity, 1))}.text-teal-600{--tw-text-opacity:1;color:rgb(13 148 136 / var(--tw-text-opacity, 1))}.text-teal-700{--tw-text-opacity:1;color:rgb(15 118 110 / var(--tw-text-opacity, 1))}.text-teal-800{--tw-text-opacity:1;color:rgb(17 94 89 / var(--tw-text-opacity, 1))}.text-teal-800\/90{color:rgb(17 94 89 / 0.9)}.text-teal-900{--tw-text-opacity:1;color:rgb(19 78 74 / var(--tw-text-opacity, 1))}.text-teal-950{--tw-text-opacity:1;color:rgb(4 47 46 / var(--tw-text-opacity, 1))}.text-teal-950\/90{color:rgb(4 47 46 / 0.9)}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.underline{-webkit-text-decoration-line:underline;text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-60{opacity:0.6}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-500{transition-duration:500ms}.selection\:bg-teal-100 *::selection{--tw-bg-opacity:1;background-color:rgb(204 251 241 / var(--tw-bg-opacity, 1))}.selection\:text-teal-900 *::selection{--tw-text-opacity:1;color:rgb(19 78 74 / var(--tw-text-opacity, 1))}.selection\:bg-teal-100::selection{--tw-bg-opacity:1;background-color:rgb(204 251 241 / var(--tw-bg-opacity, 1))}.selection\:text-teal-900::selection{--tw-text-opacity:1;color:rgb(19 78 74 / var(--tw-text-opacity, 1))}.hover\:bg-rose-100:hover{--tw-bg-opacity:1;background-color:rgb(255 228 230 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-50:hover{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-700:hover{--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.hover\:bg-teal-100:hover{--tw-bg-opacity:1;background-color:rgb(204 251 241 / var(--tw-bg-opacity, 1))}.hover\:bg-teal-500:hover{--tw-bg-opacity:1;background-color:rgb(20 184 166 / var(--tw-bg-opacity, 1))}.hover\:bg-teal-600:hover{--tw-bg-opacity:1;background-color:rgb(13 148 136 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-teal-50\/30:hover{background-color:rgb(240 253 250 / 0.3)}.hover\:text-slate-800:hover{--tw-text-opacity:1;color:rgb(30 41 59 / var(--tw-text-opacity, 1))}.hover\:text-slate-900:hover{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.hover\:shadow-md:hover{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.focus\:border-teal-600:focus{--tw-border-opacity:1;border-color:rgb(13 148 136 / var(--tw-border-opacity, 1))}.focus\:bg-white:focus{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-teal-500\/30:focus{--tw-ring-color:rgb(20 184 166 / 0.3)}@media (min-width: 640px){.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:gap-3{gap:0.75rem}.sm\:p-6{padding:1.5rem}.sm\:p-7{padding:1.75rem}.sm\:px-0{padding-left:0px;padding-right:0px}.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}.sm\:py-8{padding-top:2rem;padding-bottom:2rem}.sm\:pb-0{padding-bottom:0px}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}.sm\:text-\[13px\]{font-size:13px}}@media (min-width: 768px){.md\:inline{display:inline}.md\:flex{display:flex}.md\:hidden{display:none}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}.md\:justify-end{justify-content:flex-end}.md\:justify-between{justify-content:space-between}}@media (min-width: 1024px){.lg\:col-span-5{grid-column:span 5 / span 5}.lg\:col-span-6{grid-column:span 6 / span 6}.lg\:col-span-7{grid-column:span 7 / span 7}.lg\:grid-cols-12{grid-template-columns:repeat(12, minmax(0, 1fr))}.lg\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.lg\:flex-row{flex-direction:row}.lg\:items-center{align-items:center}.lg\:px-8{padding-left:2rem;padding-right:2rem}}</style></head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-teal-100 selection:text-teal-900">
+
+  <!-- Toast Notification Container (Replaces alert/confirm) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Top Academic & PWA Status Ribbon -->
+  <div class="bg-slate-900 text-slate-200 text-xs py-2 px-4 border-b border-slate-800 no-print">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-medium">
+          <span id="online-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="network-status-text">Online • PWA Offline Cache Ready</span>
+        </span>
+        <span class="hidden md:inline text-slate-400">|</span>
+        <span class="hidden md:inline text-slate-300">2026 Philippine Economic Context (PSA Reference Matrix)</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openPwaModal()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition font-medium border border-slate-700">
+          <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+          <span>PWA &amp; Offline Guide</span>
+        </button>
+        <button onclick="downloadPwaRepository()" id="btn-download-repo-top" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-teal-600 hover:bg-teal-500 text-white transition font-semibold shadow-sm" disabled="">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <span>Download PWA Repo (.zip)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header & Navigation -->
+  <header class="bg-white/90 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between py-3.5 gap-3">
+        <!-- Brand Identity -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-900 via-teal-800 to-teal-600 flex items-center justify-center text-white font-display font-extrabold text-lg shadow-sm relative overflow-hidden">
+              <span>PH</span>
+              <span class="absolute bottom-0 inset-x-0 h-1 bg-gradient-to-r from-[#0038A8] via-[#FCD116] to-[#CE1126]"></span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">EconoPH <span class="text-teal-700">2026</span></h1>
+                <span class="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">v2.6 PWA</span>
+              </div>
+              <p class="text-xs text-slate-500 font-medium">Socio-Economic Factors &amp; Business Impact Repository</p>
+            </div>
+          </div>
+
+          <!-- Bilingual Toggle (Mobile) -->
+          <button onclick="toggleLanguageMode()" class="md:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700">
+            <span id="lang-badge-mobile">EN / FIL</span>
+          </button>
+        </div>
+
+        <!-- Navigation Tabs + Controls -->
+        <div class="flex flex-wrap items-center justify-between md:justify-end gap-2">
+          <nav class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 overflow-x-auto max-w-full" aria-label="Learning Modules">
+            <button onclick="switchTab('cards')" id="tab-cards" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-sm whitespace-nowrap">
+              Factor Cards
+            </button>
+            <button onclick="switchTab('matrix')" id="tab-matrix" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              Full Matrix
+            </button>
+            <button onclick="switchTab('simulator')" id="tab-simulator" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              MSME Simulator
+            </button>
+            <button onclick="switchTab('quiz')" id="tab-quiz" class="nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              Flashcards &amp; Quiz
+            </button>
+          </nav>
+
+          <!-- Bilingual & Print Buttons (Desktop) -->
+          <div class="hidden md:flex items-center gap-2">
+            <button onclick="toggleLanguageMode()" title="Switch Bilingual Emphasis" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition shadow-sm">
+              <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+              <span id="lang-badge-desktop">Bilingual: EN + FIL</span>
+            </button>
+
+            <button onclick="printStudySheet()" title="Print / Export Clean Study Sheet" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition shadow-sm">
+              <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+              <span>Study Sheet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- Editorial Hero & 2026 Philippine Macro Snapshot Banner -->
+    <section class="mb-8 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-7 shadow-sm relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-teal-50 rounded-full -mr-24 -mt-24 opacity-60 pointer-events-none"></div>
+      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold mb-3">
+            <span>CONTENT MATRIX • Curriculum Learning Repository</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            Socio-Economic Factors &amp; Their Effects on Business &amp; Industry
+          </h2>
+          <p class="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed">
+            Explore how <strong class="text-slate-800">Inflation</strong>, <strong class="text-slate-800">Unemployment</strong>, <strong class="text-slate-800">Income</strong>, <strong class="text-slate-800">Technology</strong>, and <strong class="text-slate-800">Consumer Behavior</strong> shape daily operations and long-term industry growth using 2026 Philippine economic benchmarks.
+          </p>
+        </div>
+
+        <!-- 2026 PSA Key Indicators Strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-2.5 sm:gap-3 shrink-0">
+          <div class="p-3 rounded-xl bg-rose-50/80 border border-rose-200/80">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-rose-700">Oct 2026 Inflation</div>
+            <div class="text-xl font-extrabold text-rose-900 mt-0.5">7.8%</div>
+            <div class="text-[11px] text-rose-700/90">Rice: 20.7% • Transport: 20.1%</div>
+          </div>
+          <div class="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-amber-800">Sept 2026 Jobless</div>
+            <div class="text-xl font-extrabold text-amber-950 mt-0.5">5.4%</div>
+            <div class="text-[11px] text-amber-800/90">2.86M • ~11% Underemployed</div>
+          </div>
+          <div class="p-3 rounded-xl bg-sky-50/80 border border-sky-200/80">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-sky-800">Q3 2026 GDP</div>
+            <div class="text-xl font-extrabold text-sky-950 mt-0.5">2.1%</div>
+            <div class="text-[11px] text-sky-800/90">Jan–Sept Avg: 2.5%</div>
+          </div>
+          <div class="p-3 rounded-xl bg-teal-50/80 border border-teal-200/80">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-teal-800">MSME Pivot</div>
+            <div class="text-xl font-extrabold text-teal-950 mt-0.5">Tingi + Digital</div>
+            <div class="text-[11px] text-teal-800/90">E-wallets &amp; micro-packs</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 1: INTERACTIVE FACTOR CARDS EXPLORER                 -->
+    <!-- ========================================================= -->
+    <section id="view-cards" class="space-y-6">
+      <!-- Search & Factor Filter Bar -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm no-print">
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0" id="factor-filter-pills">
+          <button onclick="filterCards('all')" data-filter="all" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-white transition whitespace-nowrap">
+            All 5 Factors
+          </button>
+          <button onclick="filterCards('inflation')" data-filter="inflation" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition whitespace-nowrap">
+            1. Inflation (Implasyon)
+          </button>
+          <button onclick="filterCards('unemployment')" data-filter="unemployment" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition whitespace-nowrap">
+            2. Unemployment
+          </button>
+          <button onclick="filterCards('income')" data-filter="income" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition whitespace-nowrap">
+            3. Income (Kita)
+          </button>
+          <button onclick="filterCards('technology')" data-filter="technology" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition whitespace-nowrap">
+            4. Technology
+          </button>
+          <button onclick="filterCards('consumer')" data-filter="consumer" class="filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition whitespace-nowrap">
+            5. Consumer Behavior
+          </button>
+        </div>
+
+        <div class="relative min-w-[220px]">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input type="text" id="card-search-input" oninput="handleSearchInput()" placeholder="Search rice, utang, GCash, tingi..." class="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-600">
+        </div>
+      </div>
+
+      <!-- Cards Grid -->
+      <div id="cards-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+            <div class="p-5 sm:p-6">
+              <!-- Card Header -->
+              <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-slate-100">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-400">FACTOR 01</span>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full border bg-rose-50 text-rose-800 border-rose-200">
+                      7.8% (Oct 2026)
+                    </span>
+                  </div>
+                  <h3 class="text-xl font-extrabold text-slate-900 mt-1.5">
+                    Inflation <span class="font-semibold text-slate-500 text-base">(Implasyon)</span>
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Up from 2.0% in Jan &amp; 7.2% in Sept 2026</p>
+                </div>
+              </div>
+
+              <!-- Two-Column Effects Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                    <span>Business Operations</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>Higher cost of raw materials, fuel, and transport logistics.</li><li>Strong pressure to raise selling prices alongside smaller profit margins.</li><li>Lower purchasing power of customers reducing basket sizes.</li>
+                  </ul>
+                </div>
+
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                    <span>Industry Development</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>Higher input and borrowing costs slow capital investment and expansion.</li><li>Fixed-price sectors and small MSMEs with low cash reserves are hit hardest.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2026 Philippine Example Footer -->
+            <div class="bg-slate-900 text-slate-100 px-5 sm:px-6 py-4">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-[11px] font-mono uppercase tracking-wider text-teal-400 font-bold">2026 Philippine Context (PSA Data)</span>
+                <button onclick="testFactorInSimulator('inflation')" class="text-[11px] font-semibold text-teal-300 hover:text-white underline no-print">
+                  Simulate Impact →
+                </button>
+              </div>
+              <p class="text-xs sm:text-[13px] text-slate-200 leading-relaxed">
+                Headline inflation accelerated to 7.8% in October 2026 (from 2.0% in January and 7.2% in September 2026); rice inflation surged to 20.7%, while transport inflation hit 20.1% due to elevated fuel prices and public transport fares.
+              </p>
+            </div>
+          </article>
+        
+          <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+            <div class="p-5 sm:p-6">
+              <!-- Card Header -->
+              <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-slate-100">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-400">FACTOR 02</span>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full border bg-amber-50 text-amber-800 border-amber-200">
+                      5.4% (Sept 2026)
+                    </span>
+                  </div>
+                  <h3 class="text-xl font-extrabold text-slate-900 mt-1.5">
+                    Unemployment <span class="font-semibold text-slate-500 text-base">(Kawalan ng Trabaho)</span>
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-0.5">2.86M jobless Filipinos (~11% underemployment)</p>
+                </div>
+              </div>
+
+              <!-- Two-Column Effects Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                    <span>Business Operations</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>Fewer customers with steady disposable spending power.</li><li>Larger available labor pool (easier hiring, but weaker overall consumer demand).</li><li>More frequent customer requests for informal credit (utang / lista).</li>
+                  </ul>
+                </div>
+
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                    <span>Industry Development</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>Weak household demand slows growth across retail, food service, and personal services.</li><li>Possible rise in small informal businesses and home-based micro-ventures as displaced workers seek livelihood.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2026 Philippine Example Footer -->
+            <div class="bg-slate-900 text-slate-100 px-5 sm:px-6 py-4">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-[11px] font-mono uppercase tracking-wider text-teal-400 font-bold">2026 Philippine Context (PSA Data)</span>
+                <button onclick="testFactorInSimulator('unemployment')" class="text-[11px] font-semibold text-teal-300 hover:text-white underline no-print">
+                  Simulate Impact →
+                </button>
+              </div>
+              <p class="text-xs sm:text-[13px] text-slate-200 leading-relaxed">
+                Philippine unemployment rose to 5.4% in September 2026 (roughly 2.86 million jobless Filipinos, up from 3.8% in September 2025), while underemployment stood at around 11%.
+              </p>
+            </div>
+          </article>
+        
+          <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+            <div class="p-5 sm:p-6">
+              <!-- Card Header -->
+              <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-slate-100">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-400">FACTOR 03</span>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full border bg-sky-50 text-sky-800 border-sky-200">
+                      2.1% Q3 2026 GDP
+                    </span>
+                  </div>
+                  <h3 class="text-xl font-extrabold text-slate-900 mt-1.5">
+                    Income <span class="font-semibold text-slate-500 text-base">(Kita)</span>
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Down from 2.4% in Q2 2026 (Jan–Sept avg: 2.5%)</p>
+                </div>
+              </div>
+
+              <!-- Two-Column Effects Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                    <span>Business Operations</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>Lower real household income translates directly into lower unit sales volume.</li><li>Customer shift toward smaller, cheaper pack sizes.</li><li>Heightened pressure on business owners regarding minimum wages and worker welfare.</li>
+                  </ul>
+                </div>
+
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                    <span>Industry Development</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>Slower macroeconomic growth reduces aggregate industry earnings and delays expansion plans.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2026 Philippine Example Footer -->
+            <div class="bg-slate-900 text-slate-100 px-5 sm:px-6 py-4">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-[11px] font-mono uppercase tracking-wider text-teal-400 font-bold">2026 Philippine Context (PSA Data)</span>
+                <button onclick="testFactorInSimulator('income')" class="text-[11px] font-semibold text-teal-300 hover:text-white underline no-print">
+                  Simulate Impact →
+                </button>
+              </div>
+              <p class="text-xs sm:text-[13px] text-slate-200 leading-relaxed">
+                Q3 2026 Philippine GDP growth slowed to 2.1% (down from 2.4% in Q2 2026—the weakest pace since the pandemic), bringing the January–September 2026 average growth to 2.5%.
+              </p>
+            </div>
+          </article>
+        
+          <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+            <div class="p-5 sm:p-6">
+              <!-- Card Header -->
+              <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-slate-100">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-400">FACTOR 04</span>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full border bg-teal-50 text-teal-800 border-teal-200">
+                      E-Wallets &amp; Social Commerce
+                    </span>
+                  </div>
+                  <h3 class="text-xl font-extrabold text-slate-900 mt-1.5">
+                    Technology <span class="font-semibold text-slate-500 text-base">(Teknolohiya)</span>
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-0.5">GCash, Maya, QRPh &amp; Delivery Platforms</p>
+                </div>
+              </div>
+
+              <!-- Two-Column Effects Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                    <span>Business Operations</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>E-wallets (GCash/Maya), online selling, and delivery apps open new markets and reduce physical overhead costs.</li><li>Requires upfront capital investment, digital literacy skills, and cybersecurity/scam protection.</li>
+                  </ul>
+                </div>
+
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                    <span>Industry Development</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>Drives business model innovation, new digital industries, and tech-enabled jobs.</li><li>Widens the competitive gap between digitally adopting firms and traditional non-adopters.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2026 Philippine Example Footer -->
+            <div class="bg-slate-900 text-slate-100 px-5 sm:px-6 py-4">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-[11px] font-mono uppercase tracking-wider text-teal-400 font-bold">2026 Philippine Context (PSA Data)</span>
+                <button onclick="testFactorInSimulator('technology')" class="text-[11px] font-semibold text-teal-300 hover:text-white underline no-print">
+                  Simulate Impact →
+                </button>
+              </div>
+              <p class="text-xs sm:text-[13px] text-slate-200 leading-relaxed">
+                Micro and small Filipino sellers leverage social media, QRPh/e-wallets, and delivery platforms to reach buyers directly when physical walk-in foot traffic is slow.
+              </p>
+            </div>
+          </article>
+        
+          <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+            <div class="p-5 sm:p-6">
+              <!-- Card Header -->
+              <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-slate-100">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-400">FACTOR 05</span>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full border bg-indigo-50 text-indigo-800 border-indigo-200">
+                      Tingi &amp; Value Trading
+                    </span>
+                  </div>
+                  <h3 class="text-xl font-extrabold text-slate-900 mt-1.5">
+                    Consumer Behavior <span class="font-semibold text-slate-500 text-base">(Gawi ng Mamimili)</span>
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Sachet portions &amp; generic/value brand switching</p>
+                </div>
+              </div>
+
+              <!-- Two-Column Effects Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                    <span>Business Operations</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>Shoppers trade down to cheaper or generic brands, buy tingi (micro-portions), and compare prices online.</li><li>Businesses actively adjust product SKUs, downsize pack formats, and run targeted value promos.</li>
+                  </ul>
+                </div>
+
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                    <span>Industry Development</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    <li>Shifting consumer demand reshapes which product categories and industries expand or contract.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2026 Philippine Example Footer -->
+            <div class="bg-slate-900 text-slate-100 px-5 sm:px-6 py-4">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-[11px] font-mono uppercase tracking-wider text-teal-400 font-bold">2026 Philippine Context (PSA Data)</span>
+                <button onclick="testFactorInSimulator('consumer')" class="text-[11px] font-semibold text-teal-300 hover:text-white underline no-print">
+                  Simulate Impact →
+                </button>
+              </div>
+              <p class="text-xs sm:text-[13px] text-slate-200 leading-relaxed">
+                Filipino households stretch tight daily budgets by buying cooking oil, condiments, and essentials in smaller tingi portions and switching to lower-priced alternatives amid elevated food and transport costs.
+              </p>
+            </div>
+          </article>
+        </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 2: FULL CONTENT MATRIX TABLE VIEW (PRINTABLE)        -->
+    <!-- ========================================================= -->
+    <section id="view-matrix" class="hidden space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm no-print">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Complete Structured Content Matrix</h3>
+          <p class="text-xs text-slate-500">Side-by-side curriculum comparison table aligned with 2026 Philippine PSA figures.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="copyMatrixMarkdown()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition">
+            <svg class="w-4 h-4 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+            <span>Copy as Markdown</span>
+          </button>
+          <button onclick="printStudySheet()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-semibold transition shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <span>Print Study Matrix</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[820px]">
+            <thead>
+              <tr class="bg-slate-900 text-white text-xs uppercase tracking-wider">
+                <th class="py-4 px-5 font-bold w-[18%]">Socio-Economic Factor</th>
+                <th class="py-4 px-5 font-bold w-[27%]">Effects on Business Operations</th>
+                <th class="py-4 px-5 font-bold w-[25%]">Effects on Industry Development</th>
+                <th class="py-4 px-5 font-bold w-[30%]">2026 Philippine Example (PSA Context)</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-table-body" class="divide-y divide-slate-200 text-sm">
+          <tr class="bg-white align-top hover:bg-teal-50/30 transition">
+            <td class="py-4 px-5">
+              <span class="text-[11px] font-mono font-bold text-slate-400 block">01</span>
+              <div class="font-extrabold text-slate-900 text-base">Inflation</div>
+              <div class="text-xs font-medium text-teal-700 italic">(Implasyon)</div>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>Higher cost of raw materials, fuel, and transport logistics.</li><li>Strong pressure to raise selling prices alongside smaller profit margins.</li><li>Lower purchasing power of customers reducing basket sizes.</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>Higher input and borrowing costs slow capital investment and expansion.</li><li>Fixed-price sectors and small MSMEs with low cash reserves are hit hardest.</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <div class="inline-block text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 mb-1.5">
+                7.8% (Oct 2026)
+              </div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">Headline inflation accelerated to 7.8% in October 2026 (from 2.0% in January and 7.2% in September 2026); rice inflation surged to 20.7%, while transport inflation hit 20.1% due to elevated fuel prices and public transport fares.</p>
+            </td>
+          </tr>
+        
+          <tr class="bg-slate-50/60 align-top hover:bg-teal-50/30 transition">
+            <td class="py-4 px-5">
+              <span class="text-[11px] font-mono font-bold text-slate-400 block">02</span>
+              <div class="font-extrabold text-slate-900 text-base">Unemployment</div>
+              <div class="text-xs font-medium text-teal-700 italic">(Kawalan ng Trabaho)</div>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>Fewer customers with steady disposable spending power.</li><li>Larger available labor pool (easier hiring, but weaker overall consumer demand).</li><li>More frequent customer requests for informal credit (utang / lista).</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>Weak household demand slows growth across retail, food service, and personal services.</li><li>Possible rise in small informal businesses and home-based micro-ventures as displaced workers seek livelihood.</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <div class="inline-block text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 mb-1.5">
+                5.4% (Sept 2026)
+              </div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">Philippine unemployment rose to 5.4% in September 2026 (roughly 2.86 million jobless Filipinos, up from 3.8% in September 2025), while underemployment stood at around 11%.</p>
+            </td>
+          </tr>
+        
+          <tr class="bg-white align-top hover:bg-teal-50/30 transition">
+            <td class="py-4 px-5">
+              <span class="text-[11px] font-mono font-bold text-slate-400 block">03</span>
+              <div class="font-extrabold text-slate-900 text-base">Income</div>
+              <div class="text-xs font-medium text-teal-700 italic">(Kita)</div>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>Lower real household income translates directly into lower unit sales volume.</li><li>Customer shift toward smaller, cheaper pack sizes.</li><li>Heightened pressure on business owners regarding minimum wages and worker welfare.</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>Slower macroeconomic growth reduces aggregate industry earnings and delays expansion plans.</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <div class="inline-block text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 mb-1.5">
+                2.1% Q3 2026 GDP
+              </div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">Q3 2026 Philippine GDP growth slowed to 2.1% (down from 2.4% in Q2 2026—the weakest pace since the pandemic), bringing the January–September 2026 average growth to 2.5%.</p>
+            </td>
+          </tr>
+        
+          <tr class="bg-slate-50/60 align-top hover:bg-teal-50/30 transition">
+            <td class="py-4 px-5">
+              <span class="text-[11px] font-mono font-bold text-slate-400 block">04</span>
+              <div class="font-extrabold text-slate-900 text-base">Technology</div>
+              <div class="text-xs font-medium text-teal-700 italic">(Teknolohiya)</div>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>E-wallets (GCash/Maya), online selling, and delivery apps open new markets and reduce physical overhead costs.</li><li>Requires upfront capital investment, digital literacy skills, and cybersecurity/scam protection.</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>Drives business model innovation, new digital industries, and tech-enabled jobs.</li><li>Widens the competitive gap between digitally adopting firms and traditional non-adopters.</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <div class="inline-block text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 mb-1.5">
+                E-Wallets &amp; Social Commerce
+              </div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">Micro and small Filipino sellers leverage social media, QRPh/e-wallets, and delivery platforms to reach buyers directly when physical walk-in foot traffic is slow.</p>
+            </td>
+          </tr>
+        
+          <tr class="bg-white align-top hover:bg-teal-50/30 transition">
+            <td class="py-4 px-5">
+              <span class="text-[11px] font-mono font-bold text-slate-400 block">05</span>
+              <div class="font-extrabold text-slate-900 text-base">Consumer Behavior</div>
+              <div class="text-xs font-medium text-teal-700 italic">(Gawi ng Mamimili)</div>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>Shoppers trade down to cheaper or generic brands, buy tingi (micro-portions), and compare prices online.</li><li>Businesses actively adjust product SKUs, downsize pack formats, and run targeted value promos.</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                <li>Shifting consumer demand reshapes which product categories and industries expand or contract.</li>
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <div class="inline-block text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 mb-1.5">
+                Tingi &amp; Value Trading
+              </div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">Filipino households stretch tight daily budgets by buying cooking oil, condiments, and essentials in smaller tingi portions and switching to lower-priced alternatives amid elevated food and transport costs.</p>
+            </td>
+          </tr>
+        </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 3: SARI-SARI & MSME IMPACT SIMULATOR                 -->
+    <!-- ========================================================= -->
+    <section id="view-simulator" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-teal-700">Interactive Economic Sandbox</span>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Philippine MSME &amp; Sari-Sari Store Impact Simulator</h3>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">Adjust the 5 macro/micro indicators below to observe how a typical Filipino micro-enterprise responds in real time.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="applySimulatorPreset('baseline2026')" class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-semibold transition">
+              Load Oct 2026 PH Reality
+            </button>
+            <button onclick="applySimulatorPreset('digitalPivot')" class="px-3 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-semibold transition">
+              Load Digital + Tingi Pivot
+            </button>
+            <button onclick="applySimulatorPreset('recovery2025')" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-semibold transition">
+              Reset to Jan 2026 Calm
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-6">
+          <!-- Left Controls: 5 Sliders -->
+          <div class="lg:col-span-6 space-y-5 bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80">
+            <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider">1. Adjust Economic &amp; Market Drivers</h4>
+
+            <!-- Slider 1: Inflation -->
+            <div>
+              <div class="flex justify-between text-xs sm:text-sm font-semibold mb-1.5">
+                <span class="text-slate-700">Headline Inflation Rate (<span class="italic text-slate-500">Implasyon</span>)</span>
+                <span id="sim-val-inflation" class="font-mono font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded">7.8%</span>
+              </div>
+              <input type="range" id="sim-inflation" min="1.5" max="12.0" step="0.1" value="7.8" oninput="updateSimulator()" class="w-full">
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>1.5% (Low)</span>
+                <span>2.0% (Jan '26)</span>
+                <span>7.8% (Oct '26)</span>
+                <span>12% (Severe)</span>
+              </div>
+            </div>
+
+            <!-- Slider 2: Unemployment -->
+            <div>
+              <div class="flex justify-between text-xs sm:text-sm font-semibold mb-1.5">
+                <span class="text-slate-700">Unemployment Rate (<span class="italic text-slate-500">Kawalan ng Trabaho</span>)</span>
+                <span id="sim-val-unemployment" class="font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">5.4%</span>
+              </div>
+              <input type="range" id="sim-unemployment" min="3.0" max="10.0" step="0.1" value="5.4" oninput="updateSimulator()" class="w-full">
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>3.8% (Sept '25)</span>
+                <span>5.4% (Sept '26)</span>
+                <span>10% (High)</span>
+              </div>
+            </div>
+
+            <!-- Slider 3: Income / GDP Growth -->
+            <div>
+              <div class="flex justify-between text-xs sm:text-sm font-semibold mb-1.5">
+                <span class="text-slate-700">GDP / Household Income Growth (<span class="italic text-slate-500">Kita</span>)</span>
+                <span id="sim-val-income" class="font-mono font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded">2.1%</span>
+              </div>
+              <input type="range" id="sim-income" min="0.0" max="7.5" step="0.1" value="2.1" oninput="updateSimulator()" class="w-full">
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>0% (Stagnant)</span>
+                <span>2.1% (Q3 '26)</span>
+                <span>6.0%+ (Expansion)</span>
+              </div>
+            </div>
+
+            <!-- Slider 4: Technology Adoption -->
+            <div>
+              <div class="flex justify-between text-xs sm:text-sm font-semibold mb-1.5">
+                <span class="text-slate-700">E-Wallet &amp; Delivery App Adoption (<span class="italic text-slate-500">Teknolohiya</span>)</span>
+                <span id="sim-val-tech" class="font-mono font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded">55%</span>
+              </div>
+              <input type="range" id="sim-tech" min="0" max="100" step="5" value="55" oninput="updateSimulator()" class="w-full">
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>0% (Cash/Walk-in only)</span>
+                <span>55% (Hybrid)</span>
+                <span>100% (Full Omnichannel)</span>
+              </div>
+            </div>
+
+            <!-- Slider 5: Tingi & Value Pack Adaptation -->
+            <div>
+              <div class="flex justify-between text-xs sm:text-sm font-semibold mb-1.5">
+                <span class="text-slate-700">Tingi &amp; Value SKU Adaptation (<span class="italic text-slate-500">Gawi ng Mamimili</span>)</span>
+                <span id="sim-val-tingi" class="font-mono font-bold text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded">70%</span>
+              </div>
+              <input type="range" id="sim-tingi" min="0" max="100" step="5" value="70" oninput="updateSimulator()" class="w-full">
+              <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+                <span>0% (Bulk packs only)</span>
+                <span>70% (Sachet &amp; promos)</span>
+                <span>100% (Hyper-localized)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Dashboard: Simulated Business Outcomes -->
+          <div class="lg:col-span-6 flex flex-col justify-between space-y-5">
+            <div class="bg-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-md">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                <div>
+                  <span class="text-[11px] font-mono uppercase tracking-wider text-teal-400">Live Simulation Output</span>
+                  <h4 class="text-lg font-bold">Aling Nena’s Sari-Sari &amp; Community Mini-Mart</h4>
+                </div>
+                <span id="sim-health-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">Adapted / Pressured</span>
+              </div>
+
+              <!-- 4 Calculated KPIs -->
+              <div class="grid grid-cols-2 gap-3.5">
+                <div class="bg-slate-800/90 p-3.5 rounded-xl border border-slate-700/80">
+                  <div class="text-xs text-slate-400">Net Profit Margin</div>
+                  <div id="out-margin" class="text-2xl font-extrabold text-white mt-1">14.7%</div>
+                  <div id="out-margin-note" class="text-[11px] text-rose-300 mt-0.5">Squeezed by elevated fuel, rice &amp; logistics costs</div>
+                </div>
+
+                <div class="bg-slate-800/90 p-3.5 rounded-xl border border-slate-700/80">
+                  <div class="text-xs text-slate-400">Daily Sales Volume Index</div>
+                  <div id="out-volume" class="text-2xl font-extrabold text-white mt-1">77 / 100</div>
+                  <div id="out-volume-note" class="text-[11px] text-teal-300 mt-0.5">Protected by tingi sachets &amp; value brand SKUs</div>
+                </div>
+
+                <div class="bg-slate-800/90 p-3.5 rounded-xl border border-slate-700/80">
+                  <div class="text-xs text-slate-400">"Utang" (Credit) Requests</div>
+                  <div id="out-utang" class="text-2xl font-extrabold text-amber-300 mt-1">Moderate (30%)</div>
+                  <div id="out-utang-note" class="text-[11px] text-slate-300 mt-0.5">Driven by 5.4% jobless &amp; underemployment pressure</div>
+                </div>
+
+                <div class="bg-slate-800/90 p-3.5 rounded-xl border border-slate-700/80">
+                  <div class="text-xs text-slate-400">Digital vs. Walk-in Share</div>
+                  <div id="out-channel" class="text-2xl font-extrabold text-teal-300 mt-1">41% Digital</div>
+                  <div id="out-channel-note" class="text-[11px] text-slate-300 mt-0.5">GCash/Maya QRPh + Messenger/delivery orders active</div>
+                </div>
+              </div>
+
+              <!-- Dynamic Strategic Recommendation -->
+              <div class="mt-4 p-4 rounded-xl bg-slate-800/60 border border-teal-500/30">
+                <div class="text-xs font-bold uppercase tracking-wider text-teal-400 mb-1">Recommended MSME Survival &amp; Growth Playbook</div>
+                <p id="out-strategy" class="text-xs sm:text-sm text-slate-200 leading-relaxed">Consolidate supplier trips to cut fuel/transport surcharges and highlight affordable rice/staple substitutes. Maintain strong tingi and value-pack assortment to sustain daily repeat foot traffic. Set strict weekly credit (utang) caps per household to protect working capital. Keep QRPh e-wallets and social delivery promos active while enforcing anti-scam verification.</p>
+              </div>
+            </div>
+
+            <!-- Industry Macro Ripple Card -->
+            <div class="bg-teal-50/70 border border-teal-200 rounded-2xl p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg bg-teal-600 text-white flex items-center justify-center shrink-0 mt-0.5 font-bold text-sm">
+                  PH
+                </div>
+                <div>
+                  <h5 class="text-xs font-bold uppercase tracking-wider text-teal-900">Industry-Level Ripple Effect</h5>
+                  <p id="out-industry" class="text-xs sm:text-sm text-teal-950/90 mt-1 leading-relaxed">With 7.8% inflation, 5.4% unemployment, and 2.1% GDP growth, capital-heavy industry expansion slows while informal micro-enterprises expand. Stores at 55% digital adoption significantly outperform cash-only peers.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIEW 4: FLASHCARDS & KNOWLEDGE CHECK QUIZ                 -->
+    <!-- ========================================================= -->
+    <section id="view-quiz" class="hidden space-y-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Active Recall Flashcards (Left 5 Cols) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-teal-700">Active Recall</span>
+                <h3 class="text-lg font-extrabold text-slate-900">Bilingual Concept Flashcards</h3>
+              </div>
+              <span id="flashcard-counter" class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">1 / 6</span>
+            </div>
+
+            <!-- Flip Card Container -->
+            <div onclick="flipFlashcard()" class="perspective-1000 cursor-pointer select-none my-2">
+              <div id="flashcard-inner" class="relative w-full h-64 transition-transform duration-500 transform-style-3d">
+                <!-- Front -->
+                <div class="absolute inset-0 backface-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 flex flex-col justify-between shadow-md border border-slate-700">
+                  <div class="flex items-center justify-between">
+                    <span id="fc-tag" class="text-[11px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30">Factor 01 • Macro Price Level</span>
+                    <span class="text-[11px] text-slate-400">Tap card to flip ↻</span>
+                  </div>
+                  <div class="text-center my-auto">
+                    <h4 id="fc-front-en" class="text-2xl font-extrabold tracking-tight">Inflation</h4>
+                    <p id="fc-front-fil" class="text-base font-medium text-teal-300 italic mt-1">(Implasyon)</p>
+                  </div>
+                  <div class="text-center text-[11px] text-slate-400">
+                    2026 Philippine Socio-Economic Curriculum
+                  </div>
+                </div>
+
+                <!-- Back -->
+                <div class="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl bg-teal-50 text-slate-900 p-6 flex flex-col justify-between shadow-md border-2 border-teal-500">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-teal-800">Key Effects &amp; 2026 PH Data</span>
+                    <span class="text-[11px] text-teal-700">Tap to flip back ↺</span>
+                  </div>
+                  <p id="fc-back-text" class="text-sm sm:text-base font-medium leading-relaxed text-slate-800 my-auto">Increases raw material, fuel, and transport costs; forces price hikes and squeezes profit margins. In Oct 2026, PH inflation reached 7.8% (rice at 20.7%, transport at 20.1%).</p>
+                  <div id="fc-back-metric" class="text-xs font-mono font-semibold text-teal-900 bg-teal-100/80 px-3 py-1.5 rounded-lg">Oct 2026 PH Rate: 7.8% (up from 2.0% in Jan)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 pt-4 mt-2 border-t border-slate-100">
+            <button onclick="prevFlashcard()" class="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+              ← Previous
+            </button>
+            <button onclick="flipFlashcard()" class="py-2.5 px-4 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold transition">
+              Flip Card
+            </button>
+            <button onclick="nextFlashcard()" class="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+              Next →
+            </button>
+          </div>
+        </div>
+
+        <!-- Scenario-Based Assessment Quiz (Right 7 Cols) -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-100">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-teal-700">Self-Assessment &amp; Mastery</span>
+              <h3 class="text-lg font-extrabold text-slate-900">2026 Philippine Economic Scenario Quiz</h3>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="quiz-score-badge" class="text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200">Score: 0/6 (Best: 0/6)</span>
+              <button onclick="resetQuiz()" class="text-xs font-semibold text-slate-500 hover:text-slate-800 underline px-2 py-1">
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <div id="quiz-container" class="mt-5 space-y-5">
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+            <div class="text-xs font-mono font-bold text-teal-700 mb-1">QUESTION 1 OF 6</div>
+            <p class="text-sm font-bold text-slate-900 leading-snug mb-3">In October 2026, Philippine headline inflation accelerated to 7.8% (with rice at 20.7% and transport at 20.1%). What is the immediate operational effect on a local karinderya or bakery?</p>
+            <div class="space-y-2">
+              
+                  <button onclick="selectQuizOption('q1', 0)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">A.</span>
+                    <span>Lower raw material costs and wider profit margins</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q1', 1)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">B.</span>
+                    <span>Higher ingredient and delivery costs, squeezing margins and pressuring menu prices</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q1', 2)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">C.</span>
+                    <span>Increased customer purchasing power for premium meals</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q1', 3)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">D.</span>
+                    <span>Elimination of supplier price adjustments</span>
+                  </button>
+                
+            </div>
+            
+          </div>
+        
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+            <div class="text-xs font-mono font-bold text-teal-700 mb-1">QUESTION 2 OF 6</div>
+            <p class="text-sm font-bold text-slate-900 leading-snug mb-3">With Philippine unemployment rising to 5.4% (2.86 million jobless) in September 2026, which dual effect do neighborhood retail stores commonly experience?</p>
+            <div class="space-y-2">
+              
+                  <button onclick="selectQuizOption('q2', 0)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">A.</span>
+                    <span>Easier hiring from a larger labor pool, but weaker demand and more "utang" (credit) requests</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q2', 1)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">B.</span>
+                    <span>Severe labor shortages and surging luxury spending</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q2', 2)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">C.</span>
+                    <span>Zero demand for informal micro-enterprises</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q2', 3)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">D.</span>
+                    <span>Automatic wage reductions across all corporations</span>
+                  </button>
+                
+            </div>
+            
+          </div>
+        
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+            <div class="text-xs font-mono font-bold text-teal-700 mb-1">QUESTION 3 OF 6</div>
+            <p class="text-sm font-bold text-slate-900 leading-snug mb-3">Following the Q3 2026 GDP growth slowdown to 2.1% (weakest since the pandemic), how does slower income growth affect industry development?</p>
+            <div class="space-y-2">
+              
+                  <button onclick="selectQuizOption('q3', 0)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">A.</span>
+                    <span>It accelerates nationwide factory construction and aggressive branch expansion</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q3', 1)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">B.</span>
+                    <span>It reduces overall industry earnings and delays capital expansion plans</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q3', 2)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">C.</span>
+                    <span>It eliminates pressure on worker wages and welfare</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q3', 3)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">D.</span>
+                    <span>It causes shoppers to abandon smaller pack sizes</span>
+                  </button>
+                
+            </div>
+            
+          </div>
+        
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+            <div class="text-xs font-mono font-bold text-teal-700 mb-1">QUESTION 4 OF 6</div>
+            <p class="text-sm font-bold text-slate-900 leading-snug mb-3">How does Technology (Teknolohiya) affect industry-wide competition among Philippine MSMEs in 2026?</p>
+            <div class="space-y-2">
+              
+                  <button onclick="selectQuizOption('q4', 0)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">A.</span>
+                    <span>It guarantees equal profits without needing skills or cybersecurity</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q4', 1)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">B.</span>
+                    <span>It widens the competitive gap between firms that adopt e-wallets/delivery apps and those that do not</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q4', 2)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">C.</span>
+                    <span>It completely removes the need for capital investment</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q4', 3)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">D.</span>
+                    <span>It forces all customers to pay strictly in physical coins</span>
+                  </button>
+                
+            </div>
+            
+          </div>
+        
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+            <div class="text-xs font-mono font-bold text-teal-700 mb-1">QUESTION 5 OF 6</div>
+            <p class="text-sm font-bold text-slate-900 leading-snug mb-3">When Filipino households respond to high food and transport prices by switching to generic brands and buying cooking oil or condiments in "tingi" sachets, which socio-economic factor is at work?</p>
+            <div class="space-y-2">
+              
+                  <button onclick="selectQuizOption('q5', 0)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">A.</span>
+                    <span>Consumer Behavior (Gawi ng Mamimili)</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q5', 1)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">B.</span>
+                    <span>Monetary Policy Deregulation</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q5', 2)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">C.</span>
+                    <span>Industrial Automation</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q5', 3)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">D.</span>
+                    <span>Foreign Direct Investment</span>
+                  </button>
+                
+            </div>
+            
+          </div>
+        
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+            <div class="text-xs font-mono font-bold text-teal-700 mb-1">QUESTION 6 OF 6</div>
+            <p class="text-sm font-bold text-slate-900 leading-snug mb-3">Which strategic combination best helps a 2026 Philippine sari-sari store survive high inflation (7.8%) and sluggish GDP growth (2.1%)?</p>
+            <div class="space-y-2">
+              
+                  <button onclick="selectQuizOption('q6', 0)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">A.</span>
+                    <span>Selling only bulk family packs on unlimited credit with cash-only checkout</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q6', 1)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">B.</span>
+                    <span>Offering tingi/value SKUs, accepting e-wallets/chat orders to offset high transport costs, and managing utang limits</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q6', 2)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">C.</span>
+                    <span>Raising prices by 40% while closing online ordering channels</span>
+                  </button>
+                
+                  <button onclick="selectQuizOption('q6', 3)" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 bg-white hover:bg-slate-100 border-slate-200 text-slate-800">
+                    <span class="font-mono font-bold shrink-0">D.</span>
+                    <span>Ignoring supplier fuel surcharges and halting inventory tracking</span>
+                  </button>
+                
+            </div>
+            
+          </div>
+        </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-6 px-4 no-print">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span class="font-bold text-slate-800">EconoPH 2026 PWA Learning Repository</span> — Based on Teacher’s Content Matrix (2026 Philippine Economic Indicators: PSA Inflation, Labor Force, &amp; National Accounts).
+      </div>
+      <div class="flex items-center gap-4">
+        <button onclick="openPwaModal()" class="text-teal-700 hover:underline font-semibold">Inspect Service Worker &amp; Manifest</button>
+        <button onclick="downloadPwaRepository()" class="text-slate-700 hover:underline font-semibold">Export Source Code (.zip)</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- MODAL: PWA ARCHITECTURE, OFFLINE STATUS & SOURCE PREVIEW  -->
+  <!-- ========================================================= -->
+  <div id="pwa-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 p-6">
+      <div class="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-wider text-teal-700 font-bold">Progressive Web App Architecture</span>
+          <h3 class="text-xl font-extrabold text-slate-900 mt-0.5">Offline Capability &amp; Multi-File PWA Repository</h3>
+        </div>
+        <button onclick="closePwaModal()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-4 text-sm text-slate-600">
+        <p>
+          This application functions both as a standalone offline-ready Progressive Web App and as an interactive repository generator for students and educators.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-bold text-slate-900">1. Dynamic Web App Manifest</div>
+            <p id="modal-manifest-status" class="text-xs text-emerald-700 font-medium mt-1">✓ Active via Data URI (Standalone Display, PH Theme)</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+            <div class="text-xs font-bold text-slate-900">2. Service Worker Cache</div>
+            <p id="modal-sw-status" class="text-xs text-teal-700 font-medium mt-1">✓ Offline Storage &amp; LocalState Sync Enabled</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 text-slate-200 rounded-xl p-4 font-mono text-xs overflow-x-auto">
+          <div class="text-teal-400 font-bold mb-1.5">// Included Repository Structure (.zip export):</div>
+          <pre class="leading-relaxed text-slate-300">econoph-2026-pwa/
+├── index.html      # Complete responsive learning hub &amp; simulator
+├── manifest.json   # W3C Web App Manifest with custom SVG app icons
+├── sw.js           # Offline-first Cache API Service Worker
+└── README.md       # Deployment &amp; Classroom Offline Guide</pre>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+          <strong>Classroom / Offline Tip:</strong> Click <em>"Download Complete PWA Repository (.zip)"</em> below to save the multi-file project locally. You can host it on GitHub Pages, Netlify, or any local school intranet server to install it on Android, iOS, or desktop Chrome/Edge.
+        </div>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-end gap-3">
+        <button onclick="closePwaModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+          Close
+        </button>
+        <button onclick="downloadPwaRepository()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold transition shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <span>Download Complete PWA Repository (.zip)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- APPLICATION LOGIC & CURRICULUM DATA                       -->
+  <!-- ========================================================= -->
+  <script>
+    /**
+     * Core Curriculum Dataset: CONTENT MATRIX – Socio-economic factors and their effects (2026 PH Context)
+     */
+    const CONTENT_MATRIX = [
+      {
+        id: 'inflation',
+        number: '01',
+        enTitle: 'Inflation',
+        filTitle: 'Implasyon',
+        badgeColor: 'rose',
+        headlineMetric: '7.8% (Oct 2026)',
+        subMetric: 'Up from 2.0% in Jan & 7.2% in Sept 2026',
+        operations: [
+          'Higher cost of raw materials, fuel, and transport logistics.',
+          'Strong pressure to raise selling prices alongside smaller profit margins.',
+          'Lower purchasing power of customers reducing basket sizes.'
+        ],
+        industry: [
+          'Higher input and borrowing costs slow capital investment and expansion.',
+          'Fixed-price sectors and small MSMEs with low cash reserves are hit hardest.'
+        ],
+        phExample: 'Headline inflation accelerated to 7.8% in October 2026 (from 2.0% in January and 7.2% in September 2026); rice inflation surged to 20.7%, while transport inflation hit 20.1% due to elevated fuel prices and public transport fares.',
+        keywords: ['rice', 'bigas', 'fuel', 'transport', 'fare', 'pamasahe', 'margin', 'raw materials', '7.8%', '20.7%']
+      },
+      {
+        id: 'unemployment',
+        number: '02',
+        enTitle: 'Unemployment',
+        filTitle: 'Kawalan ng Trabaho',
+        badgeColor: 'amber',
+        headlineMetric: '5.4% (Sept 2026)',
+        subMetric: '2.86M jobless Filipinos (~11% underemployment)',
+        operations: [
+          'Fewer customers with steady disposable spending power.',
+          'Larger available labor pool (easier hiring, but weaker overall consumer demand).',
+          'More frequent customer requests for informal credit (utang / lista).'
+        ],
+        industry: [
+          'Weak household demand slows growth across retail, food service, and personal services.',
+          'Possible rise in small informal businesses and home-based micro-ventures as displaced workers seek livelihood.'
+        ],
+        phExample: 'Philippine unemployment rose to 5.4% in September 2026 (roughly 2.86 million jobless Filipinos, up from 3.8% in September 2025), while underemployment stood at around 11%.',
+        keywords: ['jobless', 'utang', 'lista', 'credit', 'labor', 'hiring', 'informal', 'underemployment', '5.4%', '2.86']
+      },
+      {
+        id: 'income',
+        number: '03',
+        enTitle: 'Income',
+        filTitle: 'Kita',
+        badgeColor: 'sky',
+        headlineMetric: '2.1% Q3 2026 GDP',
+        subMetric: 'Down from 2.4% in Q2 2026 (Jan–Sept avg: 2.5%)',
+        operations: [
+          'Lower real household income translates directly into lower unit sales volume.',
+          'Customer shift toward smaller, cheaper pack sizes.',
+          'Heightened pressure on business owners regarding minimum wages and worker welfare.'
+        ],
+        industry: [
+          'Slower macroeconomic growth reduces aggregate industry earnings and delays expansion plans.'
+        ],
+        phExample: 'Q3 2026 Philippine GDP growth slowed to 2.1% (down from 2.4% in Q2 2026—the weakest pace since the pandemic), bringing the January–September 2026 average growth to 2.5%.',
+        keywords: ['gdp', 'wages', 'sahod', 'volume', 'household', 'expansion', '2.1%', '2.5%']
+      },
+      {
+        id: 'technology',
+        number: '04',
+        enTitle: 'Technology',
+        filTitle: 'Teknolohiya',
+        badgeColor: 'teal',
+        headlineMetric: 'E-Wallets & Social Commerce',
+        subMetric: 'GCash, Maya, QRPh & Delivery Platforms',
+        operations: [
+          'E-wallets (GCash/Maya), online selling, and delivery apps open new markets and reduce physical overhead costs.',
+          'Requires upfront capital investment, digital literacy skills, and cybersecurity/scam protection.'
+        ],
+        industry: [
+          'Drives business model innovation, new digital industries, and tech-enabled jobs.',
+          'Widens the competitive gap between digitally adopting firms and traditional non-adopters.'
+        ],
+        phExample: 'Micro and small Filipino sellers leverage social media, QRPh/e-wallets, and delivery platforms to reach buyers directly when physical walk-in foot traffic is slow.',
+        keywords: ['gcash', 'maya', 'ewallet', 'online', 'delivery', 'cybersecurity', 'digital', 'social media', 'apps']
+      },
+      {
+        id: 'consumer',
+        number: '05',
+        enTitle: 'Consumer Behavior',
+        filTitle: 'Gawi ng Mamimili',
+        badgeColor: 'indigo',
+        headlineMetric: 'Tingi & Value Trading',
+        subMetric: 'Sachet portions & generic/value brand switching',
+        operations: [
+          'Shoppers trade down to cheaper or generic brands, buy tingi (micro-portions), and compare prices online.',
+          'Businesses actively adjust product SKUs, downsize pack formats, and run targeted value promos.'
+        ],
+        industry: [
+          'Shifting consumer demand reshapes which product categories and industries expand or contract.'
+        ],
+        phExample: 'Filipino households stretch tight daily budgets by buying cooking oil, condiments, and essentials in smaller tingi portions and switching to lower-priced alternatives amid elevated food and transport costs.',
+        keywords: ['tingi', 'sachet', 'brands', 'generic', 'promo', 'sku', 'budget', 'trade down']
+      }
+    ];
+
+    /**
+     * Active Recall Flashcards Data
+     */
+    const FLASHCARDS = [
+      {
+        tag: 'Factor 01 • Macro Price Level',
+        en: 'Inflation',
+        fil: '(Implasyon)',
+        back: 'Increases raw material, fuel, and transport costs; forces price hikes and squeezes profit margins. In Oct 2026, PH inflation reached 7.8% (rice at 20.7%, transport at 20.1%).',
+        metric: 'Oct 2026 PH Rate: 7.8% (up from 2.0% in Jan)'
+      },
+      {
+        tag: 'Factor 02 • Labor Market',
+        en: 'Unemployment',
+        fil: '(Kawalan ng Trabaho)',
+        back: 'Reduces customers with spending power, enlarges the hiring pool, and triggers higher requests for informal store credit (utang). Fuels growth of informal micro-businesses.',
+        metric: 'Sept 2026 PH Rate: 5.4% (2.86M jobless)'
+      },
+      {
+        tag: 'Factor 03 • Purchasing Capacity',
+        en: 'Income',
+        fil: '(Kita)',
+        back: 'Lower household income cuts sales volume, pushes buyers toward smaller packs, and creates tension between wage/worker welfare and business earnings.',
+        metric: 'Q3 2026 PH GDP: 2.1% (Jan–Sept avg: 2.5%)'
+      },
+      {
+        tag: 'Factor 04 • Digital Transformation',
+        en: 'Technology',
+        fil: '(Teknolohiya)',
+        back: 'E-wallets (GCash/Maya), social selling, and delivery apps unlock new buyers and cut overhead, though requiring digital skills and cybersecurity. Widens the adopter vs. non-adopter gap.',
+        metric: '2026 MSME Trend: Social Commerce + QRPh'
+      },
+      {
+        tag: 'Factor 05 • Market Demand Shifts',
+        en: 'Consumer Behavior',
+        fil: '(Gawi ng Mamimili)',
+        back: 'Consumers trade down to generic brands, buy tingi (micro-portions), and compare prices online—requiring businesses to adjust SKUs, pack sizes, and promos.',
+        metric: '2026 Household Habit: Tingi & Value Switching'
+      },
+      {
+        tag: '2026 PH Data Check',
+        en: 'Rice & Transport Inflation',
+        fil: '(Presyo ng Bigas at Pamasahe)',
+        back: 'Primary drivers of the October 2026 7.8% headline inflation surge: rice inflation hit 20.7% and transport inflation reached 20.1%, directly impacting household food budgets and delivery costs.',
+        metric: 'Rice: 20.7% | Transport: 20.1%'
+      }
+    ];
+
+    /**
+     * Scenario-Based Assessment Quiz Questions
+     */
+    const QUIZ_QUESTIONS = [
+      {
+        id: 'q1',
+        question: 'In October 2026, Philippine headline inflation accelerated to 7.8% (with rice at 20.7% and transport at 20.1%). What is the immediate operational effect on a local karinderya or bakery?',
+        options: [
+          'Lower raw material costs and wider profit margins',
+          'Higher ingredient and delivery costs, squeezing margins and pressuring menu prices',
+          'Increased customer purchasing power for premium meals',
+          'Elimination of supplier price adjustments'
+        ],
+        correct: 1,
+        explanation: 'Inflation raises the cost of raw materials (like rice and flour), fuel, and transport, forcing businesses to either absorb smaller profit margins or raise prices while customers have lower purchasing power.'
+      },
+      {
+        id: 'q2',
+        question: 'With Philippine unemployment rising to 5.4% (2.86 million jobless) in September 2026, which dual effect do neighborhood retail stores commonly experience?',
+        options: [
+          'Easier hiring from a larger labor pool, but weaker demand and more "utang" (credit) requests',
+          'Severe labor shortages and surging luxury spending',
+          'Zero demand for informal micro-enterprises',
+          'Automatic wage reductions across all corporations'
+        ],
+        correct: 0,
+        explanation: 'Higher unemployment creates a larger pool of job applicants (making hiring easier) while reducing the number of customers with steady income—leading to weaker sales and more requests for store credit (utang).'
+      },
+      {
+        id: 'q3',
+        question: 'Following the Q3 2026 GDP growth slowdown to 2.1% (weakest since the pandemic), how does slower income growth affect industry development?',
+        options: [
+          'It accelerates nationwide factory construction and aggressive branch expansion',
+          'It reduces overall industry earnings and delays capital expansion plans',
+          'It eliminates pressure on worker wages and welfare',
+          'It causes shoppers to abandon smaller pack sizes'
+        ],
+        correct: 1,
+        explanation: 'When overall economic and household income growth slows (2.1% in Q3 2026), lower sales volumes reduce aggregate industry earnings and cause firms to postpone expansion plans.'
+      },
+      {
+        id: 'q4',
+        question: 'How does Technology (Teknolohiya) affect industry-wide competition among Philippine MSMEs in 2026?',
+        options: [
+          'It guarantees equal profits without needing skills or cybersecurity',
+          'It widens the competitive gap between firms that adopt e-wallets/delivery apps and those that do not',
+          'It completely removes the need for capital investment',
+          'It forces all customers to pay strictly in physical coins'
+        ],
+        correct: 1,
+        explanation: 'While e-wallets (GCash/Maya), online selling, and delivery apps open new markets when walk-in traffic is slow, they require investment, skills, and digital security—widening the gap between adopters and non-adopters.'
+      },
+      {
+        id: 'q5',
+        question: 'When Filipino households respond to high food and transport prices by switching to generic brands and buying cooking oil or condiments in "tingi" sachets, which socio-economic factor is at work?',
+        options: [
+          'Consumer Behavior (Gawi ng Mamimili)',
+          'Monetary Policy Deregulation',
+          'Industrial Automation',
+          'Foreign Direct Investment'
+        ],
+        correct: 0,
+        explanation: 'Consumer Behavior (Gawi ng Mamimili) captures how shoppers trade down to cheaper alternatives, buy tingi portions, and compare prices online—prompting firms to redesign SKUs, pack sizes, and promos.'
+      },
+      {
+        id: 'q6',
+        question: 'Which strategic combination best helps a 2026 Philippine sari-sari store survive high inflation (7.8%) and sluggish GDP growth (2.1%)?',
+        options: [
+          'Selling only bulk family packs on unlimited credit with cash-only checkout',
+          'Offering tingi/value SKUs, accepting e-wallets/chat orders to offset high transport costs, and managing utang limits',
+          'Raising prices by 40% while closing online ordering channels',
+          'Ignoring supplier fuel surcharges and halting inventory tracking'
+        ],
+        correct: 1,
+        explanation: 'Combining tingi/value pack formats (matching Consumer Behavior) with digital e-wallet/chat ordering (Technology) protects volume when households are squeezed by inflation and slower income growth.'
+      }
+    ];
+
+    /**
+     * Application State
+     */
+    let state = {
+      activeTab: 'cards',
+      bilingualEmphasis: 'both', // 'both' | 'fil-first'
+      selectedFilter: 'all',
+      searchQuery: '',
+      flashcardIndex: 0,
+      isFlashcardFlipped: false,
+      quizAnswers: JSON.parse(localStorage.getItem('econoph_quiz_answers') || '{}'),
+      bestScore: parseInt(localStorage.getItem('econoph_best_score') || '0', 10)
+    };
+
+    /**
+     * Initialize App on Window Load
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      initPwaManifestAndServiceWorker();
+      renderCards();
+      renderMatrixTable();
+      updateSimulator();
+      renderFlashcard();
+      renderQuiz();
+      updateNetworkStatus();
+
+      window.addEventListener('online', updateNetworkStatus);
+      window.addEventListener('offline', updateNetworkStatus);
+    });
+
+    /**
+     * 1. PWA Dynamic Manifest & Embedded Service Worker Registration
+     */
+    function getManifestObject() {
+      const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#0f172a"/><path d="M0 440h512v72H0z" fill="#0038A8"/><path d="M170 440h172v72H170z" fill="#FCD116"/><path d="M342 440h170v72H342z" fill="#CE1126"/><text x="256" y="290" font-family="sans-serif" font-weight="800" font-size="180" fill="#ffffff" text-anchor="middle">PH</text><text x="256" y="365" font-family="monospace" font-weight="700" font-size="44" fill="#2dd4bf" text-anchor="middle">ECON 2026</text></svg>`;
+      const iconDataUri = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
+
+      return {
+        name: 'EconoPH 2026 – Socio-Economic Factors PWA Repository',
+        short_name: 'EconoPH 2026',
+        description: 'Interactive PWA Learning Hub on Socio-Economic Factors and their Effects (2026 Philippine Economic Context)',
+        start_url: './index.html',
+        display: 'standalone',
+        background_color: '#f8fafc',
+        theme_color: '#0f172a',
+        orientation: 'any',
+        icons: [
+          {
+            src: iconDataUri,
+            sizes: '192x192',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: iconDataUri,
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          }
+        ]
+      };
+    }
+
+    function getServiceWorkerSource() {
+      return `// EconoPH 2026 Offline-First Service Worker
+const CACHE_NAME = 'econoph-2026-pwa-v1';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './manifest.json'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE).catch(() => Promise.resolve());
+    })
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
+      return cachedResponse || fetchPromise;
+    })
+  );
+});
+`;
+    }
+
+    function initPwaManifestAndServiceWorker() {
+      try {
+        // Attach dynamic manifest data URI
+        const manifestObj = getManifestObject();
+        const manifestBlob = new Blob([JSON.stringify(manifestObj, null, 2)], { type: 'application/manifest+json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const manifestLink = document.getElementById('pwa-manifest');
+        if (manifestLink) {
+          manifestLink.setAttribute('href', manifestUrl);
+        }
+
+        // Register Service Worker if supported in current origin context
+        if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+          const swBlob = new Blob([getServiceWorkerSource()], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl).catch(() => {
+            // Blob SW registration may be restricted in sandboxed iframes; LocalStorage & standalone export remain active
+          });
+        }
+      } catch (err) {
+        console.warn('PWA initialization notice:', err);
+      }
+    }
+
+    function updateNetworkStatus() {
+      const dot = document.getElementById('online-dot');
+      const text = document.getElementById('network-status-text');
+      if (!dot || !text) return;
+
+      if (navigator.onLine) {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        text.textContent = 'Online • PWA Offline Cache Ready';
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        text.textContent = 'Offline Mode • Running from Local Storage';
+      }
+    }
+
+    /**
+     * 2. Download Complete Multi-File PWA Repository (.zip)
+     */
+    async function downloadPwaRepository() {
+      const btn = document.getElementById('btn-download-repo-top');
+      if (btn) btn.disabled = true;
+
+      try {
+        if (typeof JSZip === 'undefined') {
+          showToast('Packaging library still loading. Please try again in a moment.', 'warning');
+          return;
+        }
+
+        const zip = new JSZip();
+
+        // 1. manifest.json
+        const manifestJson = JSON.stringify(getManifestObject(), null, 2);
+        zip.file('manifest.json', manifestJson);
+
+        // 2. sw.js
+        zip.file('sw.js', getServiceWorkerSource());
+
+        // 3. index.html (clean standalone referencing ./manifest.json and ./sw.js)
+        let htmlSource = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        htmlSource = htmlSource.replace(/href="blob:[^"]+"/, 'href="./manifest.json"');
+        zip.file('index.html', htmlSource);
+
+        // 4. README.md
+        const readmeContent = `# EconoPH 2026 – Socio-Economic Factors PWA Learning Repository
+
+An interactive, bilingual (English / Filipino), offline-capable Progressive Web Application (PWA) built around the **Content Matrix: Socio-Economic Factors and Their Effects (2026 Philippine Economic Context)**.
+
+## Included Curriculum Modules
+1. **Inflation (*Implasyon*)** – Oct 2026 Headline Inflation at **7.8%** (up from 2.0% in Jan 2026); Rice at **20.7%**, Transport at **20.1%**.
+2. **Unemployment (*Kawalan ng Trabaho*)** – Sept 2026 Unemployment at **5.4%** (2.86M jobless Filipinos, up from 3.8% in Sept 2025); Underemployment ~**11%**.
+3. **Income (*Kita*)** – Q3 2026 GDP growth at **2.1%** (down from 2.4% in Q2 2026; Jan–Sept 2026 average: **2.5%**).
+4. **Technology (*Teknolohiya*)** – E-wallets (GCash/Maya), QRPh, social commerce, and delivery platforms bridging slow walk-in traffic.
+5. **Consumer Behavior (*Gawi ng Mamimili*)** – Trading down to value brands, buying *tingi* (micro-portions), and online price comparison.
+
+## Repository Structure
+- \`index.html\` – Complete responsive application (Factor Explorer, Full Matrix Table, Sari-Sari & MSME Impact Simulator, Flashcards & Quiz).
+- \`manifest.json\` – W3C Web App Manifest for installing on Android, iOS, and Desktop.
+- \`sw.js\` – Offline-first Cache API Service Worker.
+- \`README.md\` – Classroom deployment & offline usage guide.
+
+## How to Run & Install as a PWA
+1. Serve this folder over HTTPS or \`localhost\` (e.g., \`npx serve .\` or GitHub Pages).
+2. Open in Chrome, Edge, or Safari and click **"Install App"** or **"Add to Home Screen"** for full offline classroom access.
+`;
+        zip.file('README.md', readmeContent);
+
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const downloadUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = 'econoph-2026-pwa-repository.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadUrl);
+
+        showToast('Downloaded econoph-2026-pwa-repository.zip (index.html, manifest.json, sw.js, README.md)!', 'success');
+      } catch (error) {
+        console.error(error);
+        showToast('Could not generate ZIP file. Please try again.', 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    /**
+     * 3. Navigation & Bilingual Controls
+     */
+    function switchTab(tabName) {
+      state.activeTab = tabName;
+      const views = ['cards', 'matrix', 'simulator', 'quiz'];
+      views.forEach((v) => {
+        const viewEl = document.getElementById(`view-${v}`);
+        const tabEl = document.getElementById(`tab-${v}`);
+        if (viewEl) viewEl.classList.toggle('hidden', v !== tabName);
+        if (tabEl) {
+          if (v === tabName) {
+            tabEl.className = 'nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-sm whitespace-nowrap';
+          } else {
+            tabEl.className = 'nav-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap';
+          }
+        }
+      });
+    }
+
+    function toggleLanguageMode() {
+      state.bilingualEmphasis = state.bilingualEmphasis === 'both' ? 'fil-first' : 'both';
+      const label = state.bilingualEmphasis === 'both' ? 'Bilingual: EN + FIL' : 'Bilingual: FIL + EN';
+      const mobileLabel = state.bilingualEmphasis === 'both' ? 'EN / FIL' : 'FIL / EN';
+
+      const deskBtn = document.getElementById('lang-badge-desktop');
+      const mobBtn = document.getElementById('lang-badge-mobile');
+      if (deskBtn) deskBtn.textContent = label;
+      if (mobBtn) mobBtn.textContent = mobileLabel;
+
+      renderCards();
+      renderMatrixTable();
+      renderFlashcard();
+      showToast(`Switched heading emphasis to ${label}`, 'info');
+    }
+
+    /**
+     * 4. Factor Cards Rendering & Filtering
+     */
+    function filterCards(factorId) {
+      state.selectedFilter = factorId;
+      document.querySelectorAll('.filter-pill').forEach((btn) => {
+        const isSelected = btn.getAttribute('data-filter') === factorId;
+        btn.className = isSelected
+          ? 'filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-white transition whitespace-nowrap'
+          : 'filter-pill px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition whitespace-nowrap';
+      });
+      renderCards();
+    }
+
+    function handleSearchInput() {
+      const input = document.getElementById('card-search-input');
+      state.searchQuery = input ? input.value.trim().toLowerCase() : '';
+      renderCards();
+    }
+
+    function getBadgeClasses(color) {
+      const map = {
+        rose: 'bg-rose-50 text-rose-800 border-rose-200',
+        amber: 'bg-amber-50 text-amber-800 border-amber-200',
+        sky: 'bg-sky-50 text-sky-800 border-sky-200',
+        teal: 'bg-teal-50 text-teal-800 border-teal-200',
+        indigo: 'bg-indigo-50 text-indigo-800 border-indigo-200'
+      };
+      return map[color] || map.teal;
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('cards-grid');
+      if (!grid) return;
+
+      const filtered = CONTENT_MATRIX.filter((item) => {
+        const matchesTab = state.selectedFilter === 'all' || item.id === state.selectedFilter;
+        if (!matchesTab) return false;
+
+        if (!state.searchQuery) return true;
+        const haystack = [
+          item.enTitle,
+          item.filTitle,
+          item.headlineMetric,
+          item.phExample,
+          ...item.operations,
+          ...item.industry,
+          ...item.keywords
+        ].join(' ').toLowerCase();
+
+        return haystack.includes(state.searchQuery);
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl border border-slate-200 p-10 text-center">
+            <p class="text-slate-700 font-bold text-base">No matching socio-economic factors found.</p>
+            <p class="text-slate-500 text-xs mt-1">Try clearing your search filter or resetting to "All 5 Factors".</p>
+            <button onclick="resetFilters()" class="mt-4 px-4 py-2 rounded-xl bg-teal-700 text-white text-xs font-semibold">Reset Filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((item) => {
+        const primaryTitle = state.bilingualEmphasis === 'fil-first' ? item.filTitle : item.enTitle;
+        const secondaryTitle = state.bilingualEmphasis === 'fil-first' ? item.enTitle : item.filTitle;
+        const badgeStyle = getBadgeClasses(item.badgeColor);
+
+        return `
+          <article class="bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden">
+            <div class="p-5 sm:p-6">
+              <!-- Card Header -->
+              <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-slate-100">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono font-bold text-slate-400">FACTOR ${item.number}</span>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full border ${badgeStyle}">
+                      ${item.headlineMetric}
+                    </span>
+                  </div>
+                  <h3 class="text-xl font-extrabold text-slate-900 mt-1.5">
+                    ${primaryTitle} <span class="font-semibold text-slate-500 text-base">(${secondaryTitle})</span>
+                  </h3>
+                  <p class="text-xs text-slate-500 mt-0.5">${item.subMetric}</p>
+                </div>
+              </div>
+
+              <!-- Two-Column Effects Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                    <span>Business Operations</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    ${item.operations.map((op) => `<li>${op}</li>`).join('')}
+                  </ul>
+                </div>
+
+                <div class="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/70">
+                  <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                    <span>Industry Development</span>
+                  </div>
+                  <ul class="space-y-1.5 text-xs sm:text-[13px] text-slate-700 leading-relaxed list-disc pl-4">
+                    ${item.industry.map((ind) => `<li>${ind}</li>`).join('')}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2026 Philippine Example Footer -->
+            <div class="bg-slate-900 text-slate-100 px-5 sm:px-6 py-4">
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <span class="text-[11px] font-mono uppercase tracking-wider text-teal-400 font-bold">2026 Philippine Context (PSA Data)</span>
+                <button onclick="testFactorInSimulator('${item.id}')" class="text-[11px] font-semibold text-teal-300 hover:text-white underline no-print">
+                  Simulate Impact →
+                </button>
+              </div>
+              <p class="text-xs sm:text-[13px] text-slate-200 leading-relaxed">
+                ${item.phExample}
+              </p>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function resetFilters() {
+      state.selectedFilter = 'all';
+      state.searchQuery = '';
+      const input = document.getElementById('card-search-input');
+      if (input) input.value = '';
+      filterCards('all');
+    }
+
+    function testFactorInSimulator(factorId) {
+      switchTab('simulator');
+      if (factorId === 'technology' || factorId === 'consumer') {
+        applySimulatorPreset('digitalPivot');
+      } else {
+        applySimulatorPreset('baseline2026');
+      }
+      showToast('Loaded scenario in the MSME Impact Simulator!', 'info');
+    }
+
+    /**
+     * 5. Full Content Matrix Table View
+     */
+    function renderMatrixTable() {
+      const tbody = document.getElementById('matrix-table-body');
+      if (!tbody) return;
+
+      tbody.innerHTML = CONTENT_MATRIX.map((item, idx) => {
+        const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60';
+        const primary = state.bilingualEmphasis === 'fil-first' ? item.filTitle : item.enTitle;
+        const secondary = state.bilingualEmphasis === 'fil-first' ? item.enTitle : item.filTitle;
+
+        return `
+          <tr class="${rowBg} align-top hover:bg-teal-50/30 transition">
+            <td class="py-4 px-5">
+              <span class="text-[11px] font-mono font-bold text-slate-400 block">${item.number}</span>
+              <div class="font-extrabold text-slate-900 text-base">${primary}</div>
+              <div class="text-xs font-medium text-teal-700 italic">(${secondary})</div>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                ${item.operations.map((op) => `<li>${op}</li>`).join('')}
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-700 text-xs sm:text-sm leading-relaxed">
+                ${item.industry.map((ind) => `<li>${ind}</li>`).join('')}
+              </ul>
+            </td>
+            <td class="py-4 px-5">
+              <div class="inline-block text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-200/80 text-slate-800 mb-1.5">
+                ${item.headlineMetric}
+              </div>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">${item.phExample}</p>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function copyMatrixMarkdown() {
+      let md = '| Socio-economic factor | Effects on business operations | Effects on industry development | 2026 Philippine example |\n';
+      md += '| :--- | :--- | :--- | :--- |\n';
+      CONTENT_MATRIX.forEach((item) => {
+        md += `| **${item.enTitle} (${item.filTitle})** | ${item.operations.join('; ')} | ${item.industry.join('; ')} | ${item.phExample} |\n`;
+      });
+
+      const textarea = document.createElement('textarea');
+      textarea.value = md;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      showToast('Copied Content Matrix as Markdown table to clipboard!', 'success');
+    }
+
+    function printStudySheet() {
+      switchTab('matrix');
+      setTimeout(() => {
+        window.print();
+      }, 150);
+    }
+
+    /**
+     * 6. Interactive MSME & Sari-Sari Impact Simulator
+     */
+    function applySimulatorPreset(preset) {
+      const sliders = {
+        inflation: document.getElementById('sim-inflation'),
+        unemployment: document.getElementById('sim-unemployment'),
+        income: document.getElementById('sim-income'),
+        tech: document.getElementById('sim-tech'),
+        tingi: document.getElementById('sim-tingi')
+      };
+      if (!sliders.inflation) return;
+
+      if (preset === 'baseline2026') {
+        sliders.inflation.value = 7.8;
+        sliders.unemployment.value = 5.4;
+        sliders.income.value = 2.1;
+        sliders.tech.value = 35;
+        sliders.tingi.value = 50;
+      } else if (preset === 'digitalPivot') {
+        sliders.inflation.value = 7.8;
+        sliders.unemployment.value = 5.4;
+        sliders.income.value = 2.1;
+        sliders.tech.value = 85;
+        sliders.tingi.value = 90;
+      } else if (preset === 'recovery2025') {
+        sliders.inflation.value = 2.0;
+        sliders.unemployment.value = 3.8;
+        sliders.income.value = 5.5;
+        sliders.tech.value = 50;
+        sliders.tingi.value = 40;
+      }
+      updateSimulator();
+    }
+
+    function updateSimulator() {
+      const inflation = parseFloat(document.getElementById('sim-inflation').value);
+      const unemployment = parseFloat(document.getElementById('sim-unemployment').value);
+      const income = parseFloat(document.getElementById('sim-income').value);
+      const tech = parseInt(document.getElementById('sim-tech').value, 10);
+      const tingi = parseInt(document.getElementById('sim-tingi').value, 10);
+
+      // Update slider readouts
+      document.getElementById('sim-val-inflation').textContent = `${inflation.toFixed(1)}%`;
+      document.getElementById('sim-val-unemployment').textContent = `${unemployment.toFixed(1)}%`;
+      document.getElementById('sim-val-income').textContent = `${income.toFixed(1)}%`;
+      document.getElementById('sim-val-tech').textContent = `${tech}%`;
+      document.getElementById('sim-val-tingi').textContent = `${tingi}%`;
+
+      // Economic Model Calculations for Aling Nena's Sari-Sari & Mini-Mart
+      // Base margin 18%, reduced by high inflation, cushioned by tech efficiency & tingi turnover
+      let netMargin = 18.0 - (inflation - 2.0) * 1.15 + (tech * 0.035) + (tingi * 0.02);
+      netMargin = Math.max(2.5, Math.min(26.0, netMargin));
+
+      // Sales volume index (0 - 100)
+      let salesVolume = 78 + (income * 4.2) - (inflation * 2.1) - (unemployment * 2.3) + (tingi * 0.16) + (tech * 0.14);
+      salesVolume = Math.round(Math.max(25, Math.min(100, salesVolume)));
+
+      // Utang (informal credit) request intensity %
+      let utangRate = 12 + (unemployment - 3.0) * 5.2 + (inflation - 2.0) * 1.3 - (income * 1.1);
+      utangRate = Math.round(Math.max(8, Math.min(65, utangRate)));
+
+      // Digital order share %
+      let digitalShare = Math.round(tech * 0.68 + (inflation > 6 ? 4 : 0));
+      digitalShare = Math.min(75, digitalShare);
+
+      // Render KPIs
+      document.getElementById('out-margin').textContent = `${netMargin.toFixed(1)}%`;
+      document.getElementById('out-margin-note').textContent =
+        inflation >= 6.0
+          ? 'Squeezed by elevated fuel, rice & logistics costs'
+          : 'Healthy wholesale-to-retail spread';
+
+      document.getElementById('out-volume').textContent = `${salesVolume} / 100`;
+      document.getElementById('out-volume-note').textContent =
+        tingi >= 65
+          ? 'Protected by tingi sachets & value brand SKUs'
+          : 'Vulnerable to shoppers trading down';
+
+      const utangLabel = utangRate >= 35 ? 'High' : utangRate >= 22 ? 'Moderate' : 'Low';
+      document.getElementById('out-utang').textContent = `${utangLabel} (${utangRate}%)`;
+      document.getElementById('out-utang-note').textContent =
+        unemployment >= 5.0
+          ? `Driven by ${unemployment.toFixed(1)}% jobless & underemployment pressure`
+          : 'Manageable neighborhood credit turnover';
+
+      document.getElementById('out-channel').textContent = `${digitalShare}% Digital`;
+      document.getElementById('out-channel-note').textContent =
+        tech >= 50
+          ? 'GCash/Maya QRPh + Messenger/delivery orders active'
+          : 'Mostly walk-in cash transactions';
+
+      // Overall Health Badge
+      const badge = document.getElementById('sim-health-badge');
+      if (netMargin >= 14 && salesVolume >= 80) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        badge.textContent = 'Resilient & Growing';
+      } else if (netMargin >= 9 && salesVolume >= 65) {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        badge.textContent = 'Adapted / Pressured';
+      } else {
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30';
+        badge.textContent = 'High Margin Risk';
+      }
+
+      // Dynamic Strategy Playbook
+      const stratParts = [];
+      if (inflation >= 6.0) {
+        stratParts.push('Consolidate supplier trips to cut fuel/transport surcharges and highlight affordable rice/staple substitutes.');
+      }
+      if (tingi < 65) {
+        stratParts.push('Increase tingi/sachet inventory and value-brand combos to match budget-conscious shoppers.');
+      } else {
+        stratParts.push('Maintain strong tingi and value-pack assortment to sustain daily repeat foot traffic.');
+      }
+      if (unemployment >= 5.0) {
+        stratParts.push('Set strict weekly credit (utang) caps per household to protect working capital.');
+      }
+      if (tech < 50) {
+        stratParts.push('Adopt QRPh e-wallets and neighborhood Messenger delivery to capture buyers avoiding high transport fares.');
+      } else {
+        stratParts.push('Keep QRPh e-wallets and social delivery promos active while enforcing anti-scam verification.');
+      }
+      document.getElementById('out-strategy').textContent = stratParts.join(' ');
+
+      // Industry Ripple Text
+      document.getElementById('out-industry').textContent =
+        `With ${inflation.toFixed(1)}% inflation, ${unemployment.toFixed(1)}% unemployment, and ${income.toFixed(1)}% GDP growth, capital-heavy industry expansion slows while informal micro-enterprises expand. Stores at ${tech}% digital adoption significantly outperform cash-only peers.`;
+    }
+
+    /**
+     * 7. Flashcards & Scenario Quiz
+     */
+    function renderFlashcard() {
+      const card = FLASHCARDS[state.flashcardIndex];
+      if (!card) return;
+
+      document.getElementById('flashcard-counter').textContent = `${state.flashcardIndex + 1} / ${FLASHCARDS.length}`;
+      document.getElementById('fc-tag').textContent = card.tag;
+      document.getElementById('fc-front-en').textContent = state.bilingualEmphasis === 'fil-first' ? card.fil.replace(/[()]/g, '') : card.en;
+      document.getElementById('fc-front-fil').textContent = state.bilingualEmphasis === 'fil-first' ? `(${card.en})` : card.fil;
+      document.getElementById('fc-back-text').textContent = card.back;
+      document.getElementById('fc-back-metric').textContent = card.metric;
+
+      const inner = document.getElementById('flashcard-inner');
+      if (inner) {
+        inner.classList.toggle('rotate-y-180', state.isFlashcardFlipped);
+      }
+    }
+
+    function flipFlashcard() {
+      state.isFlashcardFlipped = !state.isFlashcardFlipped;
+      renderFlashcard();
+    }
+
+    function nextFlashcard() {
+      state.isFlashcardFlipped = false;
+      state.flashcardIndex = (state.flashcardIndex + 1) % FLASHCARDS.length;
+      renderFlashcard();
+    }
+
+    function prevFlashcard() {
+      state.isFlashcardFlipped = false;
+      state.flashcardIndex = (state.flashcardIndex - 1 + FLASHCARDS.length) % FLASHCARDS.length;
+      renderFlashcard();
+    }
+
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      const scoreBadge = document.getElementById('quiz-score-badge');
+      if (!container) return;
+
+      let currentCorrect = 0;
+      QUIZ_QUESTIONS.forEach((q) => {
+        if (state.quizAnswers[q.id] === q.correct) currentCorrect++;
+      });
+
+      if (currentCorrect > state.bestScore) {
+        state.bestScore = currentCorrect;
+        localStorage.setItem('econoph_best_score', String(state.bestScore));
+      }
+      if (scoreBadge) {
+        scoreBadge.textContent = `Score: ${currentCorrect}/${QUIZ_QUESTIONS.length} (Best: ${state.bestScore}/${QUIZ_QUESTIONS.length})`;
+      }
+
+      container.innerHTML = QUIZ_QUESTIONS.map((q, qIdx) => {
+        const chosen = state.quizAnswers[q.id];
+        const hasAnswered = chosen !== undefined;
+
+        return `
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+            <div class="text-xs font-mono font-bold text-teal-700 mb-1">QUESTION ${qIdx + 1} OF ${QUIZ_QUESTIONS.length}</div>
+            <p class="text-sm font-bold text-slate-900 leading-snug mb-3">${q.question}</p>
+            <div class="space-y-2">
+              ${q.options.map((opt, optIdx) => {
+                let btnStyle = 'bg-white hover:bg-slate-100 border-slate-200 text-slate-800';
+                if (hasAnswered) {
+                  if (optIdx === q.correct) {
+                    btnStyle = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-semibold';
+                  } else if (optIdx === chosen && chosen !== q.correct) {
+                    btnStyle = 'bg-rose-50 border-rose-400 text-rose-950';
+                  } else {
+                    btnStyle = 'bg-white/60 border-slate-200 text-slate-400';
+                  }
+                }
+                return `
+                  <button onclick="selectQuizOption('${q.id}', ${optIdx})" class="w-full text-left px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 ${btnStyle}">
+                    <span class="font-mono font-bold shrink-0">${String.fromCharCode(65 + optIdx)}.</span>
+                    <span>${opt}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+            ${hasAnswered ? `
+              <div class="mt-3 p-3 rounded-xl text-xs leading-relaxed ${chosen === q.correct ? 'bg-emerald-100/70 text-emerald-950' : 'bg-amber-100/70 text-amber-950'}">
+                <strong>${chosen === q.correct ? '✓ Correct:' : 'Review Note:'}</strong> ${q.explanation}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectQuizOption(questionId, optionIndex) {
+      state.quizAnswers[questionId] = optionIndex;
+      localStorage.setItem('econoph_quiz_answers', JSON.stringify(state.quizAnswers));
+      renderQuiz();
+    }
+
+    function resetQuiz() {
+      state.quizAnswers = {};
+      localStorage.removeItem('econoph_quiz_answers');
+      renderQuiz();
+      showToast('Quiz responses cleared for a fresh practice run.', 'info');
+    }
+
+    /**
+     * 8. Modal & Non-Blocking Toast Notifications
+     */
+    function openPwaModal() {
+      const modal = document.getElementById('pwa-modal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closePwaModal() {
+      const modal = document.getElementById('pwa-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const colors = {
+        success: 'bg-emerald-900 text-emerald-50 border-emerald-700',
+        warning: 'bg-amber-900 text-amber-50 border-amber-700',
+        error: 'bg-rose-900 text-rose-50 border-rose-700',
+        info: 'bg-slate-900 text-slate-50 border-slate-700'
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-lg text-xs font-medium flex items-center justify-between gap-3 transition-all duration-300 ${colors[type] || colors.info}`;
+      toast.innerHTML = `<span>${message}</span>`;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3600);
+    }
+  </script>
+
+</body></html>
